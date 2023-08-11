@@ -179,6 +179,8 @@ struct W5500_SPI
 	SPI_HandleTypeDef *SPI;			//Hardware SPI tp implement
 	GPIO_TypeDef  *NSS_PORT;		//Port for NSS
 	uint16_t NSS_PIN;				//Pin number
+	GPIO_TypeDef  *RST_PORT;		//Port for NSS
+	uint16_t RST_PIN;				//Pin number
 	uint8_t operacion;				//Define operation read /write
 
 uint16_t	ETH_WDG;
@@ -211,7 +213,8 @@ uint8_t     S_status,
 			S_ENserver,
 			S1_ENserver,
 			S2_ENserver,
-			S3_ENserver;
+			S3_ENserver,
+			T8;
 
 uint16_t    gS_RX_BASE ,
 			gS_RX_MASK ,
@@ -229,7 +232,8 @@ uint16_t    gS_RX_BASE ,
 			gS2_TX_BASE ,
 			gS2_TX_MASK ,
 			gS3_TX_BASE ,
-			gS3_TX_MASK ;
+			gS3_TX_MASK ,
+			T16;
 };
 
 // End Socket SPI
@@ -255,7 +259,27 @@ example
 raded_value = SPI_ETH(&ETH);
 
 /******************************************************************************/
+SPI_ETH_RESET(struct W5500_SPI * x);
+/******************************************************************************
+	SPI_ETH_RESET Resets module by hardware
 
+First define structure to use "instance SPI"
+Port and pin of RST must be defined
+
+Example:    SPI_ETH_RESET(&ETH );
+
+/******************************************************************************/
+
+SPI_ETH_PHY_RESET(struct W5500_SPI * x);
+/******************************************************************************
+	SPI_ETH_PHY_RESET Resets module by hardware
+
+First define structure to use "instance SPI"
+
+
+Example:    SPI_ETH_PHY_RESET(&ETH );
+
+/******************************************************************************/
 
 eth_wr_SOCKET_CMD(struct W5500_SPI *, uint8_t, uint8_t);
 /******************************************************************************
