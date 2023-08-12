@@ -424,11 +424,7 @@ uint8_t eth_rd_SOCKET_STAT(struct  W5500_SPI * y, uint8_t socket)
 
 
 
-	/*y->TX[0]=	SPI_READ;
-	y->TX[1]=  S_SR_ADDR_BASEH + socket;
-	y->TX[2]=  S_SR_ADDR_BASEL ;
-	y->TX[3]= 0 ;		//Lo carga en la info a enviar
-	SPI_ETH(y);*/
+
 
 }
 
