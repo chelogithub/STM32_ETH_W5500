@@ -324,7 +324,7 @@ uint16_t a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,S,T,U,V,W,X,Y,Z=0;
 	 q=SPI_ETH_REG(ETH, SIPR+2 	,COMM_REG,SPI_READ, ETH->GAR,1);
 	 r=SPI_ETH_REG(ETH, SIPR+3 	,COMM_REG,SPI_READ, ETH->GAR,1);
 
-
+/Agregado en LG 230811-2302
 /-------------------TEST DE ESCRITURA DE DATOS -------------------------*/
 }
 
