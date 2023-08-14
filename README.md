@@ -63,4 +63,4 @@ Registers read/write procedure
 	3 - For read operation, you'll receive the data, in opposite you'll put the data to be written.
 
 
-![](doc/SPI_FRAME.jpg)
+![](doc/SPI_FRAME.JPG)
