@@ -62,5 +62,5 @@ Registers read/write procedure
 	2 - Send Control Phase (8 bits) -  Byte composition is listed in the next image.
 	3 - For read operation, you'll receive the data, in opposite you'll put the data to be written.
 
-![](doc/conexiones.png)
-![](doc/SPI_FRAME.png)
+
+![](doc/SPI_FRAME.jpg)
