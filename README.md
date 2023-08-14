@@ -1,12 +1,12 @@
 # STM32_ETH_W5500
- Desarrollo de biblioteca para modulo WIZNET W5500 conectado por SPI.
+Desarrollo de biblioteca para modulo WIZNET W5500 conectado por SPI.
 ## Configuracion del Micro 
 El W5500 soporta comunicaciones SPI con un clock de hasta 14 MHZ, para este caso se setea un perscaler de 4 y se obtiene una freceuncia de clock de 9 MHz.
 En pruebas realizadas a 18MHz se obervan errores en la lectura de datos.
 `$ npm install marked`
 
 ![](doc/stm32_conf.PNG)
-### Código 
+### Código de ejemplo
 ```c
 static void MX_SPI2_Init(void)
 {
@@ -42,6 +42,11 @@ static void MX_SPI2_Init(void)
 }
 ```
 ## Conexion con el dispositivo
+
+El dispositivo tiene la capacidad de comunicarse con longitud de tipo de datos variables y fijos.
+La transmisión de datos fijos se definen por SPI, en cambio la lectura/escritura de datos variables se realiza
+durante el estado bajo de esta señal.
+
 
 ![](doc/conexiones.png)
 
