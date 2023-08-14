@@ -1,9 +1,8 @@
 # STM32_ETH_W5500
-Desarrollo de biblioteca para modulo WIZNET W5500 conectado por SPI.
-## Configuracion del Micro 
-El W5500 soporta comunicaciones SPI con un clock de hasta 14 MHZ, para este caso se setea un perscaler de 4 y se obtiene una freceuncia de clock de 9 MHz.
-En pruebas realizadas a 18MHz se obervan errores en la lectura de datos.
-`$ npm install marked`
+WIZNET W5500 library connected over SPI.
+## Microcontroller configuration
+SPI Hardware configuration as follows
+
 
 ![](doc/stm32_conf.PNG)
 ### Código de ejemplo
@@ -41,12 +40,11 @@ static void MX_SPI2_Init(void)
 
 }
 ```
-## Conexion con el dispositivo
+## Device wiring
 
-El dispositivo tiene la capacidad de comunicarse con longitud de tipo de datos variables y fijos.
-La transmisión de datos fijos se definen por SPI, en cambio la lectura/escritura de datos variables se realiza
-durante el estado bajo de esta señal.
-
+This device is able to transmit fixed and variables types.
+Fixed data transmission is defined setting propper registers on W5500 chip "Control Phase SPI Operation Mode Bits OM[1:0]".
+Variable data transmission is controlled via SCSn pin active low.
 
 ![](doc/conexiones.png)
 
@@ -58,4 +56,4 @@ Registers read/write procedure
 	2 - Send Control Phase (8 bits) -  Byte composition is listed in the next image.
 	3 - For read operation, you'll receive the data, in opposite you'll put the data to be written.
 
-![](doc/SPI Frame.png)
+![](doc/SPI_Frame.png)
