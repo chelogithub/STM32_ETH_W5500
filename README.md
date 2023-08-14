@@ -47,10 +47,14 @@ This device is able to transmit fixed and variables types.
 Fixed data transmission is defined setting propper registers on W5500 chip "Control Phase SPI Operation Mode Bits OM[1:0]".
 
 Variable data transmission is controlled via SCSn pin active low.
+
+
 ![](doc/VDM.png)
+
+
 ![](doc/conexiones.png)
 
-Module communications.
+## Module communications.
 
 Registers read/write procedure
 
