@@ -64,3 +64,5 @@ Registers read/write procedure
 
 
 ![](doc/SPI_FRAME.JPG)
+
+## Initialization
