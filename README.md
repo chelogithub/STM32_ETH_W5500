@@ -43,9 +43,11 @@ static void MX_SPI2_Init(void)
 ## Device wiring
 
 This device is able to transmit fixed and variables types.
-Fixed data transmission is defined setting propper registers on W5500 chip "Control Phase SPI Operation Mode Bits OM[1:0]".
-Variable data transmission is controlled via SCSn pin active low.
 
+Fixed data transmission is defined setting propper registers on W5500 chip "Control Phase SPI Operation Mode Bits OM[1:0]".
+
+Variable data transmission is controlled via SCSn pin active low.
+![](doc/VDM.png)
 ![](doc/conexiones.png)
 
 Module communications.
@@ -56,4 +58,4 @@ Registers read/write procedure
 	2 - Send Control Phase (8 bits) -  Byte composition is listed in the next image.
 	3 - For read operation, you'll receive the data, in opposite you'll put the data to be written.
 
-![](doc/SPI_Frame.png)
+![](doc/SPI_FRAME.png)
