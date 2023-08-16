@@ -87,14 +87,16 @@ uint16_t SPI_ETH_WR_REG_16(struct W5500_SPI * x, uint16_t addr, uint16_t  data, 
 	uint8_t a=0;
 		switch(socket)
 		{
-		case 0:	a=1; break;
-		case 1:	a=5; break;
-		case 2:	a=9; break;
-		case 3:	a=13; break;
-		case 4:	a=17; break;
-		case 5:	a=21; break;
-		case 6:	a=25; break;
-		case 7:	a=29; break;
+			case 0:	a=1; break;
+			case 1:	a=5; break;
+			case 2:	a=9; break;
+			case 3:	a=13; break;
+			case 4:	a=17; break;
+			case 5:	a=21; break;
+			case 6:	a=25; break;
+			case 7:	a=29; break;
+			case 8:	a=2; break;		//Socket 0 TX Buffer
+			case 9:	a=3; break;		//Socket 0 RX Buffer
 
 		}
 			x->TX[2]= ((a)<<3)|0x04;	   //Control Phase address + write + OP Mode
@@ -127,6 +129,8 @@ uint16_t SPI_ETH_RD_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t op, uint
 			case 5:	a=21; break;
 			case 6:	a=25; break;
 			case 7:	a=29; break;
+			case 8:	a=2; break;		//Socket 0 TX Buffer
+			case 9:	a=3; break;		//Socket 0 RX Buffer
 		}
 		x->TX[2]= ((a)<<3)|0x00;	   //Control Phase address + read + OP Mode
 
@@ -165,6 +169,8 @@ uint16_t SPI_ETH_RD_RCV_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * da
 			case 5:	a=21; break;
 			case 6:	a=25; break;
 			case 7:	a=29; break;
+			case 8:	a=2; break;		//Socket 0 TX Buffer
+			case 9:	a=3; break;		//Socket 0 RX Buffer
 		}
 		x->TX[2]= ((a)<<3)|0x00;	   //Control Phase address + read + OP Mode
 
@@ -191,14 +197,16 @@ uint16_t SPI_ETH_WR_TX_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * dat
 	uint8_t a=0;
 		switch(socket)
 		{
-			case 0:	a=1; break;
-			case 1:	a=5; break;
-			case 2:	a=9; break;
-			case 3:	a=13; break;
-			case 4:	a=17; break;
-			case 5:	a=21; break;
-			case 6:	a=25; break;
-			case 7:	a=29; break;
+				case 0:	a=1; break;
+				case 1:	a=5; break;
+				case 2:	a=9; break;
+				case 3:	a=13; break;
+				case 4:	a=17; break;
+				case 5:	a=21; break;
+				case 6:	a=25; break;
+				case 7:	a=29; break;
+				case 8:	a=2; break;		//Socket 0 TX Buffer
+				case 9:	a=3; break;		//Socket 0 RX Buffer
 		}
 		x->TX[2]= ((a)<<3)|0x04;	   //Control Phase address + WRITE + OP Mode
 
@@ -234,6 +242,8 @@ eth_wr_SOCKET_CMD(struct  W5500_SPI * y, uint8_t s, uint8_t z)
 		case 5:	a=21; break;
 		case 6:	a=25; break;
 		case 7:	a=29; break;
+		case 8:	a=2; break;		//Socket 0 TX Buffer
+		case 9:	a=3; break;		//Socket 0 RX Buffer
 	}
 	y->TX[0]= 0x00; 				//High Address Phase Hardcoded MR Register
 	y->TX[1]= 0x01;					//Low Address Phase Command
@@ -247,14 +257,16 @@ eth_wr_SOCKET_MODE(struct  W5500_SPI * y, uint8_t s, uint8_t z)
 uint8_t a=0;
 	switch(s)
 	{
-	case 0:	a=1; break;
-	case 1:	a=5; break;
-	case 2:	a=9; break;
-	case 3:	a=13; break;
-	case 4:	a=17; break;
-	case 5:	a=21; break;
-	case 6:	a=25; break;
-	case 7:	a=29; break;
+		case 0:	a=1; break;
+		case 1:	a=5; break;
+		case 2:	a=9; break;
+		case 3:	a=13; break;
+		case 4:	a=17; break;
+		case 5:	a=21; break;
+		case 6:	a=25; break;
+		case 7:	a=29; break;
+		case 8:	a=2; break;		//Socket 0 TX Buffer
+		case 9:	a=3; break;		//Socket 0 RX Buffer
 
 	}
 		y->TX[0]= 0x00; 				//High Address Phase Hardcoded MR Register
@@ -278,6 +290,7 @@ uint8_t eth_init(struct W5500_SPI * ETH)
 
 	 ETH->T8=0x0F;
 	 SPI_ETH_REG(ETH, RTR,COMM_REG	,SPI_WRITE, ETH->T8,1);
+
 	 ETH->T8=0xA0;
 	 SPI_ETH_REG(ETH, RTR+1,COMM_REG,SPI_WRITE, ETH->T8,1);
 
@@ -336,68 +349,44 @@ uint8_t eth_socket_init(struct W5500_SPI * ETH, uint8_t socket)
 	 //HAL_Delay(100);
 	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S0_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,5,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,5,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,9,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,9,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,13,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,13,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,17,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,17,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,21,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,21,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,25,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,25,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,29,SPI_WRITE, ETH->T8,1);
+	 //HAL_Delay(100);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,29,SPI_WRITE, ETH->T8,1);
+	 ETH->T8=0x00;
+	 SPI_ETH_REG(ETH, S_TX_WR,S0_REG,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TX_WR+1,S0_REG,SPI_WRITE, ETH->T8,1);
+	 uint16_t b=0;
+	 uint8_t spi_Data[2];
+	 b = SPI_ETH_REG(ETH, S_TX_WR, S0_REG ,SPI_READ, spi_Data,2);
 	 //ITM0_Write("\r\nETH-W5500-SOCK0 TCP SET\r\n",strlen("\r\nETH-W5500-SOCK0 TCP SET"));									//same for server and client
 	 SPI_ETH_REG(ETH, S_PORT, S0_REG,SPI_WRITE, ETH->S_PORT,2);									//same for server and client
 	 //HAL_Delay(100);
 	 ITM0_Write("\r\nETH-W5500-SOCK0 TCP REMOTE IP TO CONNECT\r\n",strlen("\r\nETH-W5500-SOCK0 TCP REMOTE IP TO CONNECT\r\n"));									// client
-	 //HAL_Delay(100);
 
-	 //-------------------TEST DE ESCRITURA DE DATOS -------------------------
-	// uint16_t a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,S,T,U,V,W,X,Y,Z=0;
-	 	/* SPI_ETH_REG(ETH, S_DIPR		,S0_REG,SPI_WRITE, ETH->GAR,4);
-	 	 a=SPI_ETH_REG(ETH, S_PORT 		,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 b=SPI_ETH_REG(ETH, S_PORT+1 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 c=SPI_ETH_REG(ETH, S_DIPR 		,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 d=SPI_ETH_REG(ETH, S_DIPR+1 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 e=SPI_ETH_REG(ETH, S_DIPR+2	,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 f=SPI_ETH_REG(ETH, S_DIPR+3 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 g=SPI_ETH_REG(ETH, S_DPORT 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 h=SPI_ETH_REG(ETH, S_DPORT+1 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 	 i=SPI_ETH_REG(ETH, PHYCFGR 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 	 j=SPI_ETH_REG(ETH, MR 			,S0_REG,SPI_READ, ETH->GAR,1);*/
-	/* eth_wr_SOCKET_CMD(ETH,socket, OPEN);
-	 a=SPI_ETH_REG(ETH, 0 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 b=SPI_ETH_REG(ETH, 1 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 c=SPI_ETH_REG(ETH, 2 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 d=SPI_ETH_REG(ETH, 3 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 e=SPI_ETH_REG(ETH, 4 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 f=SPI_ETH_REG(ETH, 5 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 g=SPI_ETH_REG(ETH, 6 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 h=SPI_ETH_REG(ETH, 7 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 i=SPI_ETH_REG(ETH, 8 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 j=SPI_ETH_REG(ETH, 9 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 k=SPI_ETH_REG(ETH, 10 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 l=SPI_ETH_REG(ETH, 11 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 m=SPI_ETH_REG(ETH, 12 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 n=SPI_ETH_REG(ETH, 13 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 o=SPI_ETH_REG(ETH, 14 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 p=SPI_ETH_REG(ETH, 15 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 q=SPI_ETH_REG(ETH, 16 ,S0_REG,SPI_READ, ETH->GAR,1);
-	 r=SPI_ETH_REG(ETH, PHYCFGR 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 S=SPI_ETH_REG(ETH, S_RXBUF_SIZE ,S0_REG,SPI_READ, ETH->GAR,1);
-	 T=SPI_ETH_REG(ETH, S_TXBUF_SIZE ,S0_REG,SPI_READ, ETH->GAR,1);
-	 U=SPI_ETH_REG(ETH, S_TX_FSR 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 V=SPI_ETH_REG(ETH, S_TX_FSR+1	,S0_REG,SPI_READ, ETH->GAR,1);
-	 W=SPI_ETH_REG(ETH,  S_TX_RD 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 X=SPI_ETH_REG(ETH,  S_TX_RD+1 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 Y=SPI_ETH_REG(ETH, S_TX_WR 	,S0_REG,SPI_READ, ETH->GAR,1);
-	 Z=SPI_ETH_REG(ETH, S_TX_WR+1 	,S0_REG,SPI_READ, ETH->GAR,1);*/
-
-	 //-------------------TEST DE ESCRITURA DE DATOS -------------------------
-/*
-	 eth_wr_SOCKET_CMD(ETH,socket, OPEN);																					//same for server and client
-	 ITM0_Write("\r\nETH-W5500-OPEN SOCKET\r\n",strlen("\r\nETH-W5500-OPEN SOCKET\r\n"));									//same for server and client
-
-	if(ETH->S_ENserver == 1)
-	 {
-		 eth_wr_SOCKET_CMD(ETH,socket, LISTEN);																				//only for server
-		 ITM0_Write("\r\nETH-W5500-LISTEN SOCKET\r\n",strlen("\r\nETH-W5500-LISTEN SOCKET\r\n"));							//only for server
-	 }
-	 else
-	 {
-		 	 eth_wr_SOCKET_CMD(ETH,socket, CONNECT);																				//only for server
-			 ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5500-CONNECT\r\n"));											//only fir server
-	 }*/
 
 }
 
@@ -450,12 +439,6 @@ uint8_t eth_rd_SOCKET_CMD(struct  W5500_SPI * y, uint8_t socket)
 			SPI_ETH(y);
 			return(y->RX[3]);
 
-	/*y->TX[0]= SPI_READ;
-	y->TX[1]=  S_CR_ADDR_BASEH + socket;
-	y->TX[2]=  S_CR_ADDR_BASEL ;
-	y->TX[3]= 0 ;		//Lo carga en la info a enviar
-	SPI_ETH(y);
-	return(y->RX[3]);*/
 }
 
 uint16_t  eth_rd_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * mem_pointer, uint16_t sizedata)
@@ -597,8 +580,145 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 				else
 					{
 					SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, send_size, socket);
+					//SPI_ETH_WR_TX_REG_16(ETH , Sn_TX_WR , ETH->data , 0, send_size, socket);
 					*mem_pointer=Sn_TX_WR + send_size;
 					}
 
 }
+
+uint8_t SPI_ETH_SNIFF(struct W5500_SPY * Y,struct W5500_SPI * X)
+{
+	Y->MR=SPI_ETH_REG(X, 0 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->GAR[0]=SPI_ETH_REG(X, 1 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->GAR[1]=SPI_ETH_REG(X, 2 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->GAR[2]=SPI_ETH_REG(X, 3 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->GAR[3]=SPI_ETH_REG(X, 4 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->SUBR[0]=SPI_ETH_REG(X, 5 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SUBR[1]=SPI_ETH_REG(X, 6 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SUBR[2]=SPI_ETH_REG(X, 7 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SUBR[3]=SPI_ETH_REG(X, 8 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->SHAR[0]=SPI_ETH_REG(X, 9 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SHAR[1]=SPI_ETH_REG(X, 10 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SHAR[2]=SPI_ETH_REG(X, 11 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SHAR[3]=SPI_ETH_REG(X, 12 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SHAR[4]=SPI_ETH_REG(X, 13 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SHAR[5]=SPI_ETH_REG(X, 14 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->SIPR[0]=SPI_ETH_REG(X, 15 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SIPR[1]=SPI_ETH_REG(X, 16 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SIPR[2]=SPI_ETH_REG(X, 17 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->SIPR[3]=SPI_ETH_REG(X, 18 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->INTLEVEL[0]=SPI_ETH_REG(X, 19 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->INTLEVEL[1]=SPI_ETH_REG(X, 20 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->IR=SPI_ETH_REG(X, 21 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->IMR=SPI_ETH_REG(X, 22 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->SIR=SPI_ETH_REG(X, 23 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->SIMR=SPI_ETH_REG(X, 24 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->RTR[0]=SPI_ETH_REG(X, 25 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->RTR[1]=SPI_ETH_REG(X, 26 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->RCR=SPI_ETH_REG(X, 27 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->PTIMER=SPI_ETH_REG(X, 28 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->PMAGIC=SPI_ETH_REG(X, 29 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->PHAR[0]=SPI_ETH_REG(X, 30 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PHAR[1]=SPI_ETH_REG(X, 31 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PHAR[2]=SPI_ETH_REG(X, 32 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PHAR[3]=SPI_ETH_REG(X, 33 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PHAR[4]=SPI_ETH_REG(X, 34 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PHAR[5]=SPI_ETH_REG(X, 35 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->PSID[0]=SPI_ETH_REG(X, 36 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PSID[1]=SPI_ETH_REG(X, 37 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->PMRU[0]=SPI_ETH_REG(X, 38 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->PMRU[1]=SPI_ETH_REG(X, 39 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->UIPR[0]=SPI_ETH_REG(X, 40 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->UIPR[1]=SPI_ETH_REG(X, 41 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->UIPR[2]=SPI_ETH_REG(X, 42 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->UIPR[3]=SPI_ETH_REG(X, 43 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->UPORT[0]=SPI_ETH_REG(X, 44 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+	Y->UPORT[1]=SPI_ETH_REG(X, 45 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->PHYCFGR=SPI_ETH_REG(X, 46 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->VERSIONR=SPI_ETH_REG(X, 57 ,COMM_REG,SPI_READ, Y->DUMMY,1);
+
+	//---------------------------port -------------------------//
+	Y->Sn_MR=SPI_ETH_REG(X, 0x00 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_CR=SPI_ETH_REG(X, 0x01 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_IR=SPI_ETH_REG(X, 0x02 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_SR=SPI_ETH_REG(X, 0x03 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_PORT[0]=SPI_ETH_REG(X, 0x04 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_PORT[1]=SPI_ETH_REG(X, 0x05 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_DHAR[0]=SPI_ETH_REG(X, 0x06 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DHAR[1]=SPI_ETH_REG(X, 0x07 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DHAR[2]=SPI_ETH_REG(X, 0x08 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DHAR[3]=SPI_ETH_REG(X, 0x09 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DHAR[4]=SPI_ETH_REG(X, 0x0A ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DHAR[5]=SPI_ETH_REG(X, 0x0B ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_DIPR[0]=SPI_ETH_REG(X, 0x0C ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DIPR[1]=SPI_ETH_REG(X, 0x0D ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DIPR[2]=SPI_ETH_REG(X, 0x0E ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DIPR[3]=SPI_ETH_REG(X, 0x0F ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_DPORT[0]=SPI_ETH_REG(X, 0x10 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_DPORT[1]=SPI_ETH_REG(X, 0x11 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_MSSR[0]=SPI_ETH_REG(X, 0x12 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_MSSR[1]=SPI_ETH_REG(X, 0x13 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_TOS=SPI_ETH_REG(X, 0x15 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_TTL=SPI_ETH_REG(X, 0x16 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_RXBUF_SIZE=SPI_ETH_REG(X, 0x1E ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_TXBUF_SIZE=SPI_ETH_REG(X, 0x1F ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_TX_FSR[0]=SPI_ETH_REG(X, 0x20 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_TX_FSR[1]=SPI_ETH_REG(X, 0x21 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_TX_RD[0]=SPI_ETH_REG(X, 0x22 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_TX_RD[1]=SPI_ETH_REG(X, 0x23 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_TX_WR[0]=SPI_ETH_REG(X, 0x24 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_TX_WR[1]=SPI_ETH_REG(X, 0x25 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_RX_RSR[0]=SPI_ETH_REG(X, 0x26 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_RX_RSR[1]=SPI_ETH_REG(X, 0x27 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_RX_RD[0]=SPI_ETH_REG(X, 0x28 ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_RX_RD[1]=SPI_ETH_REG(X, 0x29 ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_RX_WR[0]=SPI_ETH_REG(X, 0x2A ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_RX_WR[1]=SPI_ETH_REG(X, 0x2B ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_IMR=SPI_ETH_REG(X, 0x2C ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+	Y->Sn_FRAG[0]=SPI_ETH_REG(X, 0x2D ,S0_REG,SPI_READ, Y->DUMMY,1);
+	Y->Sn_FRAG[1]=SPI_ETH_REG(X, 0x2E ,S0_REG,SPI_READ, Y->DUMMY,1);
+
+
+	Y->Sn_KPALVTR=SPI_ETH_REG(X, 0x2F ,S0_REG,SPI_READ, Y->DUMMY,1);
+};
 

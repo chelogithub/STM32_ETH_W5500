@@ -55,8 +55,8 @@ enum{
 
 	COMM_REG	= 0x00,
 	S0_REG		= 0x01,
-	S0_TX_BUFF	= 0x02,
-	S0_RX_BUFF	= 0x03,
+	S0_TX_BUFF	= 8,
+	S0_RX_BUFF	= 9,
 };
 
 // ****** End Selection Registers Address ****** //
@@ -236,6 +236,50 @@ uint16_t    gS_RX_BASE ,
 			T16;
 };
 
+struct W5500_SPY
+{
+uint8_t	MR,
+		GAR[4],
+		SUBR[4],
+		SHAR[6],
+		SIPR[4],
+		INTLEVEL[2],
+		IR,IMR,SIR,SIMR,
+		RTR[2],
+		RCR, PTIMER, PMAGIC,
+		PHAR[6],
+		PSID[2],
+		PMRU[2],
+		UIPR[4],
+		UPORT[2],
+		PHYCFGR,VERSIONR;
+
+uint8_t	Sn_MR,
+		Sn_CR,
+		Sn_IR,
+		Sn_SR,
+		Sn_PORT[2],
+		Sn_DHAR[6],
+		Sn_DIPR[4],
+		Sn_DPORT[2],
+		Sn_MSSR[2],
+		Sn_TOS,
+		Sn_TTL,
+		Sn_RXBUF_SIZE,
+		Sn_TXBUF_SIZE,
+		Sn_TX_FSR[2],
+		Sn_TX_RD[2],
+		Sn_TX_WR[2],
+		Sn_RX_RSR[2],
+		Sn_RX_RD[2],
+		Sn_RX_WR[2],
+		Sn_IMR,
+		Sn_FRAG[2],
+		Sn_KPALVTR,
+		RXREG[2048],
+		TXREG[2048],
+		DUMMY[2];
+};
 // End Socket SPI
 /****************************************************************************
  * Función para el comunicación SPI.
@@ -400,4 +444,6 @@ uint16_t SPI_ETH_RD_REG_16(struct W5500_SPI * , uint16_t , uint8_t , uint8_t * ,
 uint16_t SPI_ETH_RD_RCV_REG_16(struct W5500_SPI * , uint16_t, uint8_t * , uint16_t, uint16_t, uint8_t);
 uint16_t SPI_ETH_WR_TX_REG_16(struct W5500_SPI * , uint16_t, uint8_t * , uint16_t, uint16_t, uint8_t);
 void setVar_ETH(void);
+uint8_t SPI_ETH_SNIFF(struct W5500_SPY *,struct W5500_SPI *);
+
 //#endif /* ETH_W5500_H_ */
