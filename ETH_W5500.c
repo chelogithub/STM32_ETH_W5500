@@ -84,23 +84,7 @@ uint16_t SPI_ETH_WR_REG_16(struct W5500_SPI * x, uint16_t addr, uint16_t  data, 
 {
 	uint16_t res=0;
 	uint8_t num[2];
-	uint8_t a=0;
-		switch(socket)
-		{
-			case 0:	a=1; break;
-			case 1:	a=5; break;
-			case 2:	a=9; break;
-			case 3:	a=13; break;
-			case 4:	a=17; break;
-			case 5:	a=21; break;
-			case 6:	a=25; break;
-			case 7:	a=29; break;
-			case 8:	a=2; break;		//Socket 0 TX Buffer
-			case 9:	a=3; break;		//Socket 0 RX Buffer
-
-		}
-			x->TX[2]= ((a)<<3)|0x04;	   //Control Phase address + write + OP Mode
-
+			x->TX[2]= ((socket)<<3)|0x04;
 			num[1] = data & 0x00FF ;
 			num[0] = (data & 0xFF00)>>8 ;
 
@@ -113,27 +97,11 @@ uint16_t SPI_ETH_WR_REG_16(struct W5500_SPI * x, uint16_t addr, uint16_t  data, 
 					res=SPI_ETH(x);
 				 }
 			 return(res);
-
 }
 
 uint16_t SPI_ETH_RD_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t op, uint8_t * data, uint16_t lnght, uint8_t socket )
 {
-	uint8_t a=0;
-		switch(socket)
-		{
-			case 0:	a=1; break;
-			case 1:	a=5; break;
-			case 2:	a=9; break;
-			case 3:	a=13; break;
-			case 4:	a=17; break;
-			case 5:	a=21; break;
-			case 6:	a=25; break;
-			case 7:	a=29; break;
-			case 8:	a=2; break;		//Socket 0 TX Buffer
-			case 9:	a=3; break;		//Socket 0 RX Buffer
-		}
-		x->TX[2]= ((a)<<3)|0x00;	   //Control Phase address + read + OP Mode
-
+		x->TX[2]= ((socket)<<3)|0x04;
 	if(lnght < 2048)
 	{
 		if(op == SPI_READ)
@@ -158,22 +126,7 @@ uint16_t SPI_ETH_RD_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t op, uint
 
 uint16_t SPI_ETH_RD_RCV_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * data, uint16_t offset, uint16_t lnght, uint8_t socket )
 {
-	uint8_t a=0;
-		switch(socket)
-		{
-			case 0:	a=1; break;
-			case 1:	a=5; break;
-			case 2:	a=9; break;
-			case 3:	a=13; break;
-			case 4:	a=17; break;
-			case 5:	a=21; break;
-			case 6:	a=25; break;
-			case 7:	a=29; break;
-			case 8:	a=2; break;		//Socket 0 TX Buffer
-			case 9:	a=3; break;		//Socket 0 RX Buffer
-		}
-		x->TX[2]= ((a)<<3)|0x00;	   //Control Phase address + read + OP Mode
-
+		x->TX[2]= ((socket)<<3)|0x00;
 	if(lnght < 2048)
 	{
 			x->TX[3]=0x00;
@@ -194,22 +147,7 @@ uint16_t SPI_ETH_RD_RCV_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * da
 
 uint16_t SPI_ETH_WR_TX_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * data, uint16_t offset, uint16_t lnght, uint8_t socket )
 {
-	uint8_t a=0;
-		switch(socket)
-		{
-				case 0:	a=1; break;
-				case 1:	a=5; break;
-				case 2:	a=9; break;
-				case 3:	a=13; break;
-				case 4:	a=17; break;
-				case 5:	a=21; break;
-				case 6:	a=25; break;
-				case 7:	a=29; break;
-				case 8:	a=2; break;		//Socket 0 TX Buffer
-				case 9:	a=3; break;		//Socket 0 RX Buffer
-		}
-		x->TX[2]= ((a)<<3)|0x04;	   //Control Phase address + WRITE + OP Mode
-
+		x->TX[2]= ((socket)<<3)|0x04;
 	if(lnght < 2048)
 	{
 
@@ -229,49 +167,20 @@ uint16_t SPI_ETH_WR_TX_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * dat
 	}
 }
 
-eth_wr_SOCKET_CMD(struct  W5500_SPI * y, uint8_t s, uint8_t z)
+eth_wr_SOCKET_CMD(struct  W5500_SPI * y, uint8_t socket, uint8_t z)
 {
-	uint8_t a=0;
-	switch(s)
-	{
-		case 0:	a=1; break;
-		case 1:	a=5; break;
-		case 2:	a=9; break;
-		case 3:	a=13; break;
-		case 4:	a=17; break;
-		case 5:	a=21; break;
-		case 6:	a=25; break;
-		case 7:	a=29; break;
-		case 8:	a=2; break;		//Socket 0 TX Buffer
-		case 9:	a=3; break;		//Socket 0 RX Buffer
-	}
 	y->TX[0]= 0x00; 				//High Address Phase Hardcoded MR Register
 	y->TX[1]= 0x01;					//Low Address Phase Command
-	y->TX[2]= ((a)<<3)|0x04;	//Control Phase address + R/W + OP Mode
+	y->TX[2]= ((socket<<3)|0x04);	//Control Phase address + R/W + OP Mode
 	y->TX[3]= z ;		//Load data to save
 	SPI_ETH(y);
 }
 
-eth_wr_SOCKET_MODE(struct  W5500_SPI * y, uint8_t s, uint8_t z)
+eth_wr_SOCKET_MODE(struct  W5500_SPI * y, uint8_t socket, uint8_t z)
 {
-uint8_t a=0;
-	switch(s)
-	{
-		case 0:	a=1; break;
-		case 1:	a=5; break;
-		case 2:	a=9; break;
-		case 3:	a=13; break;
-		case 4:	a=17; break;
-		case 5:	a=21; break;
-		case 6:	a=25; break;
-		case 7:	a=29; break;
-		case 8:	a=2; break;		//Socket 0 TX Buffer
-		case 9:	a=3; break;		//Socket 0 RX Buffer
-
-	}
 		y->TX[0]= 0x00; 				//High Address Phase Hardcoded MR Register
 		y->TX[1]= 0x00;					//Low Address Phase Mode
-		y->TX[2]= ((a)<<3)|0x04;	//Control Phase address + R/W + OP Mode
+		y->TX[2]= ((socket)<<3)|0x04;	//Control Phase address + R/W + OP Mode
 		y->TX[3]= z ;		//Load data to save
 
 	SPI_ETH(y);
@@ -309,36 +218,6 @@ uint8_t eth_init(struct W5500_SPI * ETH)
 	 SPI_ETH_REG(ETH, SIPR,COMM_REG,SPI_WRITE, ETH->SIPR,4);												//same for server and client
 	 ITM0_Write("\r\nETH-W5500-IP SET\r\n",strlen("\r\nETH-W5500-IP SET"));
 
-
-
-
-
-	 //same for server and client
-
-/*-------------------TEST DE ESCRITURA DE DATOS -------------------------
-uint16_t a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,S,T,U,V,W,X,Y,Z=0;
-
-	 a=SPI_ETH_REG(ETH, GAR 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 b=SPI_ETH_REG(ETH, GAR+1 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 c=SPI_ETH_REG(ETH, GAR+2 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 d=SPI_ETH_REG(ETH, GAR+3 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 e=SPI_ETH_REG(ETH, SUBR	,COMM_REG,SPI_READ, ETH->SUBR,1);
-	 f=SPI_ETH_REG(ETH, SUBR+1 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 g=SPI_ETH_REG(ETH, SUBR+2 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 h=SPI_ETH_REG(ETH, SUBR+3 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 i=SPI_ETH_REG(ETH, SHAR	,COMM_REG,SPI_READ, ETH->SHAR,1);
-	 j=SPI_ETH_REG(ETH, SHAR+1 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 k=SPI_ETH_REG(ETH, SHAR+2 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 l=SPI_ETH_REG(ETH, SHAR+3 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 m=SPI_ETH_REG(ETH, SHAR+4 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 n=SPI_ETH_REG(ETH, SHAR+5 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 o=SPI_ETH_REG(ETH, SIPR	,COMM_REG,SPI_READ, ETH->SIPR,1);
-	 p=SPI_ETH_REG(ETH, SIPR+1 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 q=SPI_ETH_REG(ETH, SIPR+2 	,COMM_REG,SPI_READ, ETH->GAR,1);
-	 r=SPI_ETH_REG(ETH, SIPR+3 	,COMM_REG,SPI_READ, ETH->GAR,1);
-
-/Agregado en LG 230811-2302 - OK revisado 230811-2307
-/-------------------TEST DE ESCRITURA DE DATOS -------------------------*/
 }
 
 uint8_t eth_socket_init(struct W5500_SPI * ETH, uint8_t socket)
@@ -349,33 +228,33 @@ uint8_t eth_socket_init(struct W5500_SPI * ETH, uint8_t socket)
 	 //HAL_Delay(100);
 	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S0_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,5,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S1_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,5,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S1_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,9,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S2_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,9,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S2_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,13,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S3_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,13,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S3_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,17,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S4_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,17,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S4_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,21,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S5_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,21,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S5_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,25,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S6_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,25,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S6_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,29,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_RXBUF_SIZE,S7_REG,SPI_WRITE, ETH->T8,1);
 	 //HAL_Delay(100);
-	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,29,SPI_WRITE, ETH->T8,1);
+	 SPI_ETH_REG(ETH, S_TXBUF_SIZE,S7_REG,SPI_WRITE, ETH->T8,1);
 	 ETH->T8=0x00;
 	 SPI_ETH_REG(ETH, S_TX_WR,S0_REG,SPI_WRITE, ETH->T8,1);
 	 SPI_ETH_REG(ETH, S_TX_WR+1,S0_REG,SPI_WRITE, ETH->T8,1);
@@ -392,50 +271,19 @@ uint8_t eth_socket_init(struct W5500_SPI * ETH, uint8_t socket)
 
 uint8_t eth_rd_SOCKET_STAT(struct  W5500_SPI * y, uint8_t socket)
 {
-	uint8_t a=0;
-		switch(socket)
-		{
-		case 0:	a=1; break;
-		case 1:	a=5; break;
-		case 2:	a=9; break;
-		case 3:	a=13; break;
-		case 4:	a=17; break;
-		case 5:	a=21; break;
-		case 6:	a=25; break;
-		case 7:	a=29; break;
-
-		}
 			y->TX[0]= 0x00; 				//High Address Phase Hardcoded Stat Register
 			y->TX[1]= 0x03;					//Low Address Phase Mode
-			y->TX[2]= ((a)<<3)|0x00;	   //Control Phase address + R/W + OP Mode
+			y->TX[2]= ((socket)<<3)|0x00;	   //Control Phase address + R/W + OP Mode
 			SPI_ETH(y);
 			return(y->RX[3]);
-
-
-
-
 
 }
 
 uint8_t eth_rd_SOCKET_CMD(struct  W5500_SPI * y, uint8_t socket)
 {
-
-	uint8_t a=0;
-		switch(socket)
-		{
-		case 0:	a=1; break;
-		case 1:	a=5; break;
-		case 2:	a=9; break;
-		case 3:	a=13; break;
-		case 4:	a=17; break;
-		case 5:	a=21; break;
-		case 6:	a=25; break;
-		case 7:	a=29; break;
-
-		}
 			y->TX[0]= 0x00; 				//High Address Phase Hardcoded Command Register
 			y->TX[1]= 0x01;					//Low Address Phase Mode
-			y->TX[2]= ((a)<<3)|0x00;	   //Control Phase address + R/W + OP Mode
+			y->TX[2]= ((socket)<<3)|0x00;	   //Control Phase address + R/W + OP Mode
 			SPI_ETH(y);
 			return(y->RX[3]);
 
@@ -457,7 +305,7 @@ uint16_t  eth_rd_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * 
 
 	switch (socket)
 	{
-		case 0 :
+		/*case 0 :
 		{
 			RX_MASK=ETH->gS_RX_MASK;
 			RX_BASE=ETH->gS_RX_BASE;
@@ -480,7 +328,7 @@ uint16_t  eth_rd_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * 
 			RX_MASK=ETH->gS3_RX_MASK;
 			RX_BASE=ETH->gS3_RX_BASE;
 		}
-		break;
+		break;*/
 		default :
 		{
 			RX_MASK=ETH->gS_RX_MASK;
@@ -527,7 +375,7 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 
 	switch (socket)
 	{
-		case 0 :
+		/*case S7_REG :
 		{
 			TX_MASK=ETH->gS_TX_MASK;
 			TX_BASE=ETH->gS_TX_BASE;
@@ -550,7 +398,7 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 			TX_MASK=ETH->gS3_TX_MASK;
 			TX_BASE=ETH->gS3_TX_BASE;
 		}
-		break;
+		break;*/
 		default :
 		{
 			TX_MASK=ETH->gS_TX_MASK;
@@ -580,7 +428,6 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 				else
 					{
 					SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, send_size, socket);
-					//SPI_ETH_WR_TX_REG_16(ETH , Sn_TX_WR , ETH->data , 0, send_size, socket);
 					*mem_pointer=Sn_TX_WR + send_size;
 					}
 

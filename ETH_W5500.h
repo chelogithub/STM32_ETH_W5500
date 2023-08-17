@@ -55,8 +55,30 @@ enum{
 
 	COMM_REG	= 0x00,
 	S0_REG		= 0x01,
-	S0_TX_BUFF	= 8,
-	S0_RX_BUFF	= 9,
+	S0_TX_BUFF	= 0x02,
+	S0_RX_BUFF	= 0x03,
+	S1_REG		= 0x05,
+	S1_TX_BUFF	= 0x06,
+	S1_RX_BUFF	= 0x07,
+	S2_REG		= 0x09,
+	S2_TX_BUFF	= 0x0A,
+	S2_RX_BUFF	= 0x0B,
+	S3_REG		= 0x0D,
+	S3_TX_BUFF	= 0x0E,
+	S3_RX_BUFF	= 0x0F,
+	S4_REG		= 0x11,
+	S4_TX_BUFF	= 0x12,
+	S4_RX_BUFF	= 0x13,
+	S5_REG		= 0x15,
+	S5_TX_BUFF	= 0x16,
+	S5_RX_BUFF	= 0x17,
+	S6_REG		= 0x19,
+	S6_TX_BUFF	= 0x1A,
+	S6_RX_BUFF	= 0x1B,
+	S7_REG		= 0x1D,
+	S7_TX_BUFF	= 0x1E,
+	S7_RX_BUFF	= 0x1F,
+
 };
 
 // ****** End Selection Registers Address ****** //
