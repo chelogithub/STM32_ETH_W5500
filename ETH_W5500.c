@@ -10,7 +10,7 @@
 SPI_ETH_RESET(struct W5500_SPI * x)
 {
 	HAL_GPIO_WritePin(x->RST_PORT, x->RST_PIN , GPIO_PIN_RESET);		//RST LOW
-	HAL_Delay(1);
+	HAL_Delay(100);
 	HAL_GPIO_WritePin(x->RST_PORT, x->RST_PIN , GPIO_PIN_SET);			//RST HIGH
 }
 
