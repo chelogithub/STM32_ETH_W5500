@@ -87,28 +87,28 @@ enum{
 enum
 {
 
- S_MR			=   0x0000,	//Mode
- S_CR			=   0x0001,	//Command
- S_IR			=   0x0002,	//Interrupt
- S_SR			=   0x0003,	//Status
- S_PORT			=   0x0004,	//Source Port
- S_DHAR			=   0x0006,	//Destiantion Address
- S_DIPR			=   0x000C,	//Destination IP Address
- S_DPORT		=   0x0010,	//Destination Port
- S_MSSR			=   0x0012,	//Maximum segment size
- S_TOS 			=   0x0015,	//Socket  TOS
- S_TTL 			=   0x0016,	//Socket  TTL
- S_RXBUF_SIZE	=	0x001E,	//Socket Resceive Buffer
- S_TXBUF_SIZE	=	0x001F,	//Socket Transmitt Buffer
- S_TX_FSR		=   0x0020,	//Socket  TX Free size
- S_TX_RD		=   0x0022,	//Socket  TX Read pointer
- S_TX_WR		=   0x0024,	//Socket  TX Write pointer
- S_RX_RSR		=   0x0026,	//Socket  RX Received size
- S_RX_RD0      	=   0x0028, //Socket  RX Read pointer
- S_RX_WR		=   0x002A,	//Socket  RX Write Pointer
- S_IMR			=   0x002C,	//Socket  Interrupt Mask
- S_FRAG			=   0x002D,	//Socket  Fragment Offset in IP Header
- S_KPALVTR     =   0x002F, //Socket  Keep Alive Timer
+ Sn_MR			=   0x0000,	//Mode
+ Sn_CR			=   0x0001,	//Command
+ Sn_IR			=   0x0002,	//Interrupt
+ Sn_SR			=   0x0003,	//Status
+ Sn_PORT			=   0x0004,	//Source Port
+ Sn_DHAR			=   0x0006,	//Destiantion Address
+ Sn_DIPR			=   0x000C,	//Destination IP Address
+ Sn_DPORT		=   0x0010,	//Destination Port
+ Sn_MSSR			=   0x0012,	//Maximum segment size
+ Sn_TOS 			=   0x0015,	//Socket  TOS
+ Sn_TTL 			=   0x0016,	//Socket  TTL
+ Sn_RXBUF_SIZE	=	0x001E,	//Socket Resceive Buffer
+ Sn_TXBUF_SIZE	=	0x001F,	//Socket Transmitt Buffer
+ Sn_TX_FSR		=   0x0020,	//Socket  TX Free size
+ Sn_TX_RD		=   0x0022,	//Socket  TX Read pointer
+ Sn_TX_WR		=   0x0024,	//Socket  TX Write pointer
+ Sn_RX_RSR		=   0x0026,	//Socket  RX Received size
+ Sn_RX_RD0      	=   0x0028, //Socket  RX Read pointer
+ Sn_RX_WR		=   0x002A,	//Socket  RX Write Pointer
+ Sn_IMR			=   0x002C,	//Socket  Interrupt Mask
+ Sn_FRAG			=   0x002D,	//Socket  Fragment Offset in IP Header
+ Sn_KPALVTR     =   0x002F, //Socket  Keep Alive Timer
 
 
  S_MR_ADDR_BASEH 		=	0x00,
@@ -167,6 +167,16 @@ enum
 
 // ****** end Socket COMMANDS Sn_CR ****** //
 
+// ****** Begin Socket COMMANDS Status for programm ****** //
+enum
+{
+ READY 				=	0x00,
+ TIME_OUT			=	0X01,
+ CONNECTING 		=	0x02,
+};
+
+// ****** end Socket COMMANDS Status for programm ****** //
+
 // ****** Begin Socket STATUS Sn_SR ****** //
 enum
 {
@@ -206,7 +216,9 @@ struct W5500_SPI
 	uint8_t operacion;				//Define operation read /write
 
 uint16_t	ETH_WDG;
-uint8_t     S_status,
+uint8_t     CMD_Status,
+			PHY_status,
+			S_status,
 			S1_status,
 			S2_status,
 			S3_status,
