@@ -275,12 +275,6 @@ uint8_t eth_socket_init(struct W5500_SPI * ETH, uint8_t socket)
 			 ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5100-CONNECT\r\n"));											//only fir server
 	 }
 
-	/*  	uint8_t gar1=0, gar2=0, gar3=0,gar4=0;
-		gar1=SPI_ETH_REG(ETH, GAR,COMM_REG,SPI_READ, ETH->GAR,1);
-		gar2=SPI_ETH_REG(ETH, GAR+1,COMM_REG,SPI_READ, ETH->GAR,1);
-		gar3=SPI_ETH_REG(ETH, GAR+2,COMM_REG,SPI_READ, ETH->GAR,1);
-		gar4=SPI_ETH_REG(ETH, GAR+3,COMM_REG,SPI_READ, ETH->GAR,1);*/
-
 }
 
 uint8_t eth_rd_SOCKET_STAT(struct  W5500_SPI * y, uint8_t socket)
