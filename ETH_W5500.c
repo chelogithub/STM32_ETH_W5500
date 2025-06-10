@@ -194,26 +194,26 @@ uint8_t eth_init(struct W5500_SPI * ETH)
 
 	 ETH->T8=0x00;
 	 SPI_ETH_REG(ETH, IMR,COMM_REG	,SPI_WRITE, ETH->T8,1);
-	 ITM0_Write("\r\nETH-W5500-INTERRUPT MASK CLEARED\r\n",strlen("\r\nETH-W5500-INTERRUPT MASK CLEARED\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-INTERRUPT MASK CLEARED\r\n",strlen("\r\nETH-W5500-INTERRUPT MASK CLEARED\r\n"));
 	 ETH->T8=0x0F;
 	 SPI_ETH_REG(ETH, RTR,COMM_REG	,SPI_WRITE, ETH->T8,1);
 	 ETH->T8=0xA0;
 	 SPI_ETH_REG(ETH, RTR+1,COMM_REG,SPI_WRITE, ETH->T8,1);
-	 ITM0_Write("\r\nETH-W5500-RETRY TIME SET\r\n",strlen("\r\nETH-W5500-RETRY TIME SET\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-RETRY TIME SET\r\n",strlen("\r\nETH-W5500-RETRY TIME SET\r\n"));
 	 ETH->T8=0x07;
 	 SPI_ETH_REG(ETH, RCR,COMM_REG	,SPI_WRITE, ETH->T8,1);
-	 ITM0_Write("\r\nETH-W5500-RETRY COUNT SET\r\n",strlen("\r\nETH-W5500-RETRY COUNT SET\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-RETRY COUNT SET\r\n",strlen("\r\nETH-W5500-RETRY COUNT SET\r\n"));
 	 ETH->T8=0x00;
 	 SPI_ETH_REG(ETH, SIMR,COMM_REG	,SPI_WRITE, ETH->T8,1);
-	 ITM0_Write("\r\nETH-W5500-SOCKET INTERRUPT MASK CLEARED\r\n",strlen("\r\nETH-W5500-SOCKET INTERRUPT MASK CLEARED\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCKET INTERRUPT MASK CLEARED\r\n",strlen("\r\nETH-W5500-SOCKET INTERRUPT MASK CLEARED\r\n"));
 	 SPI_ETH_REG(ETH, SHAR,COMM_REG,SPI_WRITE, ETH->SHAR,6);												//same for server and client
-	 ITM0_Write("\r\nETH-W5500-MAC SET\r\n",strlen("\r\nETH-W5500-MAC SET"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-MAC SET\r\n",strlen("\r\nETH-W5500-MAC SET"));
 	 SPI_ETH_REG(ETH, GAR,COMM_REG,SPI_WRITE, ETH->GAR,4);	//SPI_ETH_REG(ETH, GAR_ADDR_BASEH,GAR_ADDR_BASEL,SPI_WRITE, ETH->GAR,4);													//same for server and client
-	 ITM0_Write("\r\nETH-W5500-GATEWAY SET\r\n",strlen("\r\nETH-W5500-GATEWAY SET\r\n"));									//same for server and client
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-GATEWAY SET\r\n",strlen("\r\nETH-W5500-GATEWAY SET\r\n"));									//same for server and client
 	 SPI_ETH_REG(ETH, SUBR,COMM_REG,SPI_WRITE, ETH->SUBR,4);												//same for server and client
-	 ITM0_Write("\r\nETH-W5500-SUBNET SET\r\n",strlen("\r\nETH-W5500-SUBNET SET"));											//same for server and client
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SUBNET SET\r\n",strlen("\r\nETH-W5500-SUBNET SET"));											//same for server and client
 	 SPI_ETH_REG(ETH, SIPR,COMM_REG,SPI_WRITE, ETH->SIPR,4);												//same for server and client
-	 ITM0_Write("\r\nETH-W5500-IP SET\r\n",strlen("\r\nETH-W5500-IP SET"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-IP SET\r\n",strlen("\r\nETH-W5500-IP SET"));
 
 }
 
@@ -237,42 +237,42 @@ uint8_t eth_socket_init(struct W5500_SPI * ETH, uint8_t socket)
 	 SPI_ETH_REG(ETH, Sn_TXBUF_SIZE,S6_REG,SPI_WRITE, ETH->T8,1);
 	 SPI_ETH_REG(ETH, Sn_RXBUF_SIZE,S7_REG,SPI_WRITE, ETH->T8,1);
 	 SPI_ETH_REG(ETH, Sn_TXBUF_SIZE,S7_REG,SPI_WRITE, ETH->T8,1);
-	 ITM0_Write("\r\nETH-W5500-SOCKETS BUFFERS TX-RX SET\r\n",strlen("\r\nETH-W5500-SOCKETS BUFFERS TX-RX SET\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCKETS BUFFERS TX-RX SET\r\n",strlen("\r\nETH-W5500-SOCKETS BUFFERS TX-RX SET\r\n"));
 
 	 ETH->T8=0x00;
 	 SPI_ETH_REG(ETH, Sn_TX_WR,socket,SPI_WRITE, ETH->T8,1);
 	 SPI_ETH_REG(ETH, Sn_TX_WR+1,socket,SPI_WRITE, ETH->T8,1);
-	 ITM0_Write("\r\nETH-W5500-SOCKET0 WR POINTER CLEAR\r\n",strlen("\r\nETH-W5500-SOCKET0 WR POINTER CLEAR\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCKET0 WR POINTER CLEAR\r\n",strlen("\r\nETH-W5500-SOCKET0 WR POINTER CLEAR\r\n"));
 
 	 SPI_ETH_REG(ETH, Sn_PORT, socket,SPI_WRITE, ETH->S_PORT,2);
-	 ITM0_Write("\r\nETH-W5500-SOCK0 SOURCE PORT SET\r\n",strlen("\r\nETH-W5500-SOCK0 SOURCE PORT SET\r\n"));									// client
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCK0 SOURCE PORT SET\r\n",strlen("\r\nETH-W5500-SOCK0 SOURCE PORT SET\r\n"));									// client
 
 	 SPI_ETH_REG(ETH, Sn_DIPR,socket,SPI_WRITE, ETH->S_DIPR,4);									// client
-	 ITM0_Write("\r\nETH-W5500-SOCK0 DESTINTAION IP ADDRESS SET\r\n",strlen("\r\nETH-W5100-SOCK0 DESTINTAION IP ADDRESS SET\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCK0 DESTINTAION IP ADDRESS SET\r\n",strlen("\r\nETH-W5100-SOCK0 DESTINTAION IP ADDRESS SET\r\n"));
 
 	 SPI_ETH_REG(ETH, Sn_DPORT,socket,SPI_WRITE, ETH->S_DPORT,2);
-	 ITM0_Write("\r\nETH-W5500-SOCK0 DESTINTAION PORT SET\r\n",strlen("\r\nETH-W5100-SOCK0 DESTINTAION PORT SET\r\n"));
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCK0 DESTINTAION PORT SET\r\n",strlen("\r\nETH-W5100-SOCK0 DESTINTAION PORT SET\r\n"));
 
 
 
 
 	 eth_wr_SOCKET_MODE(ETH,socket, MODE_TCP);																				//same for server and client
-	 ITM0_Write("\r\nETH-W5500-SOCK0 TCP MODE SET\r\n",strlen("\r\nETH-W5100-SOCK0 TCP MODE SET\r\n"));									//same for server and client
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-SOCK0 TCP MODE SET\r\n",strlen("\r\nETH-W5100-SOCK0 TCP MODE SET\r\n"));									//same for server and client
 
 
 	 eth_wr_SOCKET_CMD(ETH,socket, OPEN);																					//same for server and client
-	 ITM0_Write("\r\nETH-W5500-OPEN SOCKET\r\n",strlen("\r\nETH-W5100-OPEN SOCKET\r\n"));									//same for server and client
+	 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-OPEN SOCKET\r\n",strlen("\r\nETH-W5100-OPEN SOCKET\r\n"));									//same for server and client
 
 	 if(ETH->S_ENserver == 1)
 	 {
 		 eth_wr_SOCKET_CMD(ETH,socket, LISTEN);																				//only for server
-		 ITM0_Write("\r\nETH-W5500-LISTEN SOCKET\r\n",strlen("\r\nETH-W5100-LISTEN SOCKET\r\n"));							//only for server
+		 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-LISTEN SOCKET\r\n",strlen("\r\nETH-W5100-LISTEN SOCKET\r\n"));							//only for server
 	 }
 	 else
 	 {
 
 		 	 eth_wr_SOCKET_CMD(ETH,socket, CONNECT);																				//only for server
-			 ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5100-CONNECT\r\n"));											//only fir server
+			 if(ETH->DBG) ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5100-CONNECT\r\n"));											//only fir server
 	 }
 
 }

@@ -248,7 +248,8 @@ uint8_t     CMD_Status,
 			S1_ENserver,
 			S2_ENserver,
 			S3_ENserver,
-			T8;
+			T8,
+			DBG;
 
 uint16_t    gS_RX_BASE ,
 			gS_RX_MASK ,
