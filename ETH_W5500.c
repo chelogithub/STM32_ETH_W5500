@@ -6,6 +6,7 @@
  */
 
 #include "ETH_W5500.h"
+#include "C:\STM32-IDE\STM32-Library\ModBUS\ModBUS_Chelo.h"
 
 SPI_ETH_RESET(struct W5500_SPI * x)
 {
@@ -576,4 +577,260 @@ uint8_t SPI_ETH_SNIFF(struct W5500_SPY * Y,struct W5500_SPI * X)
 
 	Y->Sn_KPALVTR=SPI_ETH_REG(X, 0x002F ,S0_REG,SPI_READ, Y->DUMMY,1);
 };
+
+
+uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER, struct MBUS * a_eth , struct MBUS * mb_wf)
+{
+	Y->S_status=eth_rd_SOCKET_STAT(Y,S0_REG);  //este era el bardo
+
+		  switch(Y->S_status)	//Check Socket status
+				 {
+					 case SOCK_CLOSED :
+						 {
+							 if (Y->DBG) {ITM0_Write("\r\nS0_SOCK_CLOSED \r\n",strlen("\r\nS0_SOCK_CLOSED \r\n"));
+							 TX_485_Enable(0);
+							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_CLOSED\r\n", strlen("\r\nS0_SOCK_CLOSED\r\n"));}
+
+							 if (Y->CMD_Status==TIME_OUT)
+							 {
+								 eth_wr_SOCKET_CMD(Y,S0_REG, OPEN);																					//same for server and client
+								 if (Y->DBG) ITM0_Write("\r\nETH-W5500-OPEN SOCKET\r\n",strlen("\r\nETH-W5100-OPEN SOCKET\r\n"));
+							 }
+
+							 if(Y->ETH_WDG >= 25000)
+								 {
+									 if (Y->DBG) ITM0_Write("\r\nETH_DEVICE_RESET \r\n",strlen("\r\nETH_DEVICE_RESET \r\n"));
+									 SPI_ETH_RESET(Y);
+									 Y->ETH_WDG=0;
+								 }
+							Y->CAM=0;
+						 }
+					 break;
+					 case  SOCK_INIT :
+						 {
+
+							 if(Y->S_ENserver == 1)
+							 {
+								 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_INIT \r\n",strlen("\r\nS0_SOCK_INIT \r\n"));
+									eth_wr_SOCKET_CMD(Y, S0_REG, LISTEN );
+									Y->ETH_WDG=0;
+									Y->CAM=0;
+							 }
+							 else
+							 {
+								 if (Y->CMD_Status!=CONNECTING)
+								 {
+									eth_wr_SOCKET_CMD(Y,S0_REG, CONNECT);																				//only for server
+									if (Y->DBG) {ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5500-CONNECT\r\n"));
+									TX_485_Enable(0);
+									HAL_UART_Transmit_IT(PORTSER, "\r\nETH-W5500-CONNECT\r\n", strlen("\r\nETH-W5500-CONNECT\r\n"));}
+									Y->ETH_WDG=0;
+									Y->CAM=0;
+									Y->CMD_Status=CONNECTING;
+								 }
+
+							 }
+						 }
+					 break;
+					 case SOCK_LISTEN :
+						 {
+							 if (Y->DBG){ITM0_Write("\r\nS0_SOCK_LISTEN \r\n",strlen("\r\nS0_SOCK_LISTEN \r\n"));
+							 TX_485_Enable(0);
+							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_LISTEN \r\n", strlen("\r\nS0_SOCK_LISTEN \r\n"));}
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_SYNSENT :
+						 {
+							 if (Y->DBG){ITM0_Write("\r\nS0_SOCK_SYNSENT \r\n",strlen("\r\nS0_SOCK_SYNSENT \r\n"));
+							 TX_485_Enable(0);
+							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_SYNSENT\r\n", strlen("\r\nS0_SOCK_SYNSENT\r\n"));}
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_SYNRECV :
+						 {
+							 if (Y->DBG)ITM0_Write("\r\nS0_SOCK_SYNRECV \r\n",strlen("\r\nS0_SOCK_SYNRECV \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_ESTABLISHED :
+						 {
+							 Y->ETH_WDG=0;
+							 if (Y->DBG){ITM0_Write("\r\nS0_SOCK_ESTABLISHED \r\n",strlen("\r\nS0_SOCK_ESTABLISHED \r\n"));
+							 TX_485_Enable(0);
+							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_ESTABLISHED\r\n", strlen("\r\nS0_SOCK_ESTABLISHED\r\n"));}
+
+
+							if (Y->S_ENserver == 1)  // Si el puerto Ethernet actúa como server (Recibe datos conexión mas pedido mbus
+							{
+								uint8_t local_exit=1;
+								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,S0_REG, SPI_READ, Y->spi_Data,2);//Y->S0_get_size = SPI_ETH_REG(Y, S_RX_SZ_ADDR_BASEHH,S_RX_SZ_ADDR_BASEHL ,SPI_READ, Y->spi_Data,2);
+									if(Y->S0_get_size != 0x00)
+									{
+										eth_rd_SOCKET_DATA(Y,S0_RX_BUFF,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data
+										SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,S0_REG );		// write rx memory pointer
+										eth_wr_SOCKET_CMD(Y,S0_REG,RECV);
+										eth_rd_SOCKET_CMD(Y,S0_REG);// write command to execute
+										CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
+										a_eth->_n_MBUS_RCVD=Y->S0_get_size;
+
+										if(Y->S0_get_size > 0)	{ Y->S_data_available=1;}					//Flag data received
+
+										if(ModBUS_Check(a_eth->_MBUS_RCVD, a_eth->_n_MBUS_RCVD))		//Ckecks ModBUS type data
+											{
+												ModBUS(&a_eth);										//ModBUS protocol execution
+												CopiaVector(Y->data, a_eth->_MBUS_2SND, a_eth->_n_MBUS_2SND, 0, 0);
+											}
+										else
+											{
+												if (Y->DBG) ITM0_Write("\r\n NO MBUS \r\n",strlen("\r\n\r\n NO MBUS \r\n\r\n"));
+											}
+
+										Y->send_size=a_eth->_n_MBUS_2SND;  //ModBUS data qty
+										eth_wr_SOCKET_DATA(Y,S0_RX_BUFF, &Y->tx_mem_pointer, Y->send_size);	// write socket data
+										SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,S0_REG);			// write tx memory pointer//SPI_ETH_WR_REG_16(Y,0x424,tx_mem_pointer,0);			// write tx memory pointer
+										eth_wr_SOCKET_CMD(Y,S0_REG,SEND);							// write command to execute
+										eth_rd_SOCKET_CMD(Y,S0_REG);
+									}
+							}
+							else	// Puerto ethernet labura como esclavo, se conecta al server para pedir datos
+							{
+								if (a_eth->_w_answer==0)
+								{
+									//Si ya envié vuelvo a enviar
+									Y->data[0]=0x00;
+									Y->data[1]=0x00;
+									Y->data[2]=0x00;
+									Y->data[3]=0x00;
+									Y->data[4]=0x00;
+									Y->data[5]=0x06;
+									Y->data[6]=0x01;
+									Y->data[7]=0x03;
+									Y->data[8]=0x00;
+									Y->data[9]=0x00;
+									Y->data[10]=0x00;
+									Y->data[11]=0x0A;
+									Y->send_size=12;
+
+									ModBUS_F03_Request(a_eth,0,16);
+									CopiaVector(Y->data, a_eth->_MBUS_2SND, 12, 0, 0 );
+									eth_wr_SOCKET_DATA(Y,S0_TX_BUFF, &Y->tx_mem_pointer, Y->send_size);	// write socket data
+									SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,S0_REG);			// write tx memory pointer
+									eth_wr_SOCKET_CMD(Y,S0_REG,SEND);							// write command to execute
+									uint16_t read=0;
+									read=SPI_ETH_REG(Y, Sn_IR,S0_REG,SPI_READ, Y->GAR,1);
+									a_eth->_w_answer=1;	// Waiting answer flag_w_answer=1;	// Waiting answer flag
+									Y->MB_TOUT_ticks=0;	// restart counting
+									if (Y->DBG) ITM0_Write("\r\n SENT MBUS REQ \r\n",strlen("\r\n\r\n SENT MBUS REQ \r\n\r\n"));
+								}
+								else
+								{
+								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,S0_REG ,SPI_READ, Y->spi_Data,2);
+									if(Y->S0_get_size != 0x00)
+									{
+											eth_rd_SOCKET_DATA(Y,S0_RX_BUFF,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data
+											SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,S0_REG);		// write rx memory pointer
+											eth_wr_SOCKET_CMD(Y,S0_REG,RECV);							// write command to execute
+											if (Y->DBG) ITM0_Write("\r\n RCVD DATA \r\n",strlen("\r\n RCVD DATA \r\n"));
+											CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
+											a_eth->_n_MBUS_RCVD=Y->S0_get_size;
+											if(Y->S0_get_size > 0)	{ Y->S_data_available=1;}
+											if(ModBUS_Check(a_eth->_MBUS_RCVD, a_eth->_n_MBUS_RCVD))		//Ckecks ModBUS type data
+												{
+													a_eth->_w_answer=0;  									//Si el mensaje recibido ya es modbus digo que ya recibi
+													Y->MB_TOUT_ticks=0;
+													ModBUS(a_eth);										//ModBUS protocol execution
+													CopiaVector(Y->swap, a_eth->_MBUS_RCVD, a_eth->_n_MBUS_RCVD, 0, 0);
+													CopiaVector(mb_wf->_Holding_Registers, a_eth->_Holding_Registers, 64, 0, 0);
+													if (Y->DBG) ITM0_Write("\r\n RCVD MBUS REQ \r\n",strlen("\r\n\ RCVD MBUS REQ \r\n"));
+												}
+												else
+													{
+													if (Y->DBG) ITM0_Write("\r\n NO MBUS \r\n",strlen("\r\n NO MBUS \r\n"));
+													}
+										}
+
+								}
+							}
+							Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_FIN_WAIT :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_FIN_WAIT \r\n",strlen("\r\nS0_SOCK_FIN_WAIT \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_CLOSING :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_CLOSING \r\n",strlen("\r\nS0_SOCK_CLOSING \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case  SOCK_TIME_WAIT :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_TIME_WAIT \r\n",strlen("\r\nS0_SOCK_TIME_WAIT \r\n"));
+							eth_wr_SOCKET_CMD(Y,S0_REG, DISCON );
+							SPI_ETH_REG(Y,Sn_CR ,S0_REG,SPI_READ, Y->spi_Data,100);
+							Y->ETH_WDG=0;
+							Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_CLOSE_WAIT :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_CLOSE_WAIT \r\n",strlen("\r\nS0_SOCK_CLOSE_WAIT \r\n"));
+							eth_wr_SOCKET_CMD(Y,S0_REG,DISCON );
+							SPI_ETH_REG(Y,Sn_CR,S0_REG,SPI_READ, Y->spi_Data,100);
+							Y->ETH_WDG=0;
+							Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_LAST_ACK :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_LAST_ACK \r\n",strlen("\r\n S0_SOCK_LAST_ACK \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_UDP :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_UDP \r\n",strlen("\r\n S0_SOCK_UDP \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case  SOCK_IPRAW :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_IPRAW \r\n",strlen("\r\n S0_SOCK_IPRAW \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case  SOCK_MACRAW :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_MACRAW \r\n",strlen("\r\n S0_SOCK_MACRAW \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+					 case SOCK_PPOE :
+						 {
+							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_PPOE \r\n",strlen("\r\n S0_SOCK_PPOE \r\n"));
+							 Y->ETH_WDG=0;
+							 Y->CAM=0;
+						 }
+					 break;
+
+					 default:
+						 {
+
+						 }
+				 }
+}
 

@@ -228,6 +228,7 @@ uint8_t     CMD_Status,
 			RX[4],					//Vector for RX SPI commands
 			data[2048],				//Data readed from SPI
 			swap[2048],				//VECTOR DE INTERCAMBIO A DEFINIR
+			spi_Data[64],
 			GAR[4],
 			SUBR[4],
 			SHAR[6],
@@ -249,7 +250,8 @@ uint8_t     CMD_Status,
 			S2_ENserver,
 			S3_ENserver,
 			T8,
-			DBG;
+			DBG,
+			CAM;
 
 uint16_t    gS_RX_BASE ,
 			gS_RX_MASK ,
@@ -268,7 +270,13 @@ uint16_t    gS_RX_BASE ,
 			gS2_TX_MASK ,
 			gS3_TX_BASE ,
 			gS3_TX_MASK ,
-			T16;
+			T16,
+			tx_mem_pointer,
+			rx_mem_pointer,
+			S0_get_size,
+			send_size;
+
+uint32_t MB_TOUT_ticks;
 };
 
 struct W5500_SPY
