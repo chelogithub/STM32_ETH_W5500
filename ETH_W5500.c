@@ -579,7 +579,7 @@ uint8_t SPI_ETH_SNIFF(struct W5500_SPY * Y,struct W5500_SPI * X)
 };
 
 
-uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER, struct MBUS * a_eth , struct MBUS * mb_wf)
+uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 {
 	Y->S_status=eth_rd_SOCKET_STAT(Y,S0_REG);  //este era el bardo
 
@@ -675,7 +675,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER, struct MBUS 
 										SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,S0_REG );		// write rx memory pointer
 										eth_wr_SOCKET_CMD(Y,S0_REG,RECV);
 										eth_rd_SOCKET_CMD(Y,S0_REG);// write command to execute
-										CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
+										/*CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
 										a_eth->_n_MBUS_RCVD=Y->S0_get_size;
 
 										if(Y->S0_get_size > 0)	{ Y->S_data_available=1;}					//Flag data received
@@ -690,7 +690,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER, struct MBUS 
 												if (Y->DBG) ITM0_Write("\r\n NO MBUS \r\n",strlen("\r\n\r\n NO MBUS \r\n\r\n"));
 											}
 
-										Y->send_size=a_eth->_n_MBUS_2SND;  //ModBUS data qty
+										Y->send_size=a_eth->_n_MBUS_2SND;  //ModBUS data qty*/
 										eth_wr_SOCKET_DATA(Y,S0_RX_BUFF, &Y->tx_mem_pointer, Y->send_size);	// write socket data
 										SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,S0_REG);			// write tx memory pointer//SPI_ETH_WR_REG_16(Y,0x424,tx_mem_pointer,0);			// write tx memory pointer
 										eth_wr_SOCKET_CMD(Y,S0_REG,SEND);							// write command to execute
@@ -699,60 +699,34 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER, struct MBUS 
 							}
 							else	// Puerto ethernet labura como esclavo, se conecta al server para pedir datos
 							{
-								if (a_eth->_w_answer==0)
+								if (Y->COMMAND==SEND)  //Enviar si no estoy esperadno datos
 								{
 									//Si ya envié vuelvo a enviar
-									Y->data[0]=0x00;
-									Y->data[1]=0x00;
-									Y->data[2]=0x00;
-									Y->data[3]=0x00;
-									Y->data[4]=0x00;
-									Y->data[5]=0x06;
-									Y->data[6]=0x01;
-									Y->data[7]=0x03;
-									Y->data[8]=0x00;
-									Y->data[9]=0x00;
-									Y->data[10]=0x00;
-									Y->data[11]=0x0A;
-									Y->send_size=12;
-
-									ModBUS_F03_Request(a_eth,0,16);
-									CopiaVector(Y->data, a_eth->_MBUS_2SND, 12, 0, 0 );
+									Y->STATUS==SENDING;
 									eth_wr_SOCKET_DATA(Y,S0_TX_BUFF, &Y->tx_mem_pointer, Y->send_size);	// write socket data
 									SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,S0_REG);			// write tx memory pointer
 									eth_wr_SOCKET_CMD(Y,S0_REG,SEND);							// write command to execute
 									uint16_t read=0;
 									read=SPI_ETH_REG(Y, Sn_IR,S0_REG,SPI_READ, Y->GAR,1);
-									a_eth->_w_answer=1;	// Waiting answer flag_w_answer=1;	// Waiting answer flag
+									//a_eth->_w_answer=1;	// Waiting answer flag_w_answer=1;	// Waiting answer flag
 									Y->MB_TOUT_ticks=0;	// restart counting
+									Y->STATUS=SENT;
+									Y->COMMAND=NO_OP;  //NO OPERATION.
 									if (Y->DBG) ITM0_Write("\r\n SENT MBUS REQ \r\n",strlen("\r\n\r\n SENT MBUS REQ \r\n\r\n"));
 								}
-								else
+								else //if (a_eth->_w_answer==1) //recibir si estoy esperando datos
 								{
 								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,S0_REG ,SPI_READ, Y->spi_Data,2);
 									if(Y->S0_get_size != 0x00)
 									{
+											Y->STATUS==RECEIVING;
 											eth_rd_SOCKET_DATA(Y,S0_RX_BUFF,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data
 											SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,S0_REG);		// write rx memory pointer
-											eth_wr_SOCKET_CMD(Y,S0_REG,RECV);							// write command to execute
+											eth_wr_SOCKET_CMD(Y,S0_REG,RECV);
+											Y->STATUS=RECEIPT;// write command to execute
 											if (Y->DBG) ITM0_Write("\r\n RCVD DATA \r\n",strlen("\r\n RCVD DATA \r\n"));
-											CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
-											a_eth->_n_MBUS_RCVD=Y->S0_get_size;
-											if(Y->S0_get_size > 0)	{ Y->S_data_available=1;}
-											if(ModBUS_Check(a_eth->_MBUS_RCVD, a_eth->_n_MBUS_RCVD))		//Ckecks ModBUS type data
-												{
-													a_eth->_w_answer=0;  									//Si el mensaje recibido ya es modbus digo que ya recibi
-													Y->MB_TOUT_ticks=0;
-													ModBUS(a_eth);										//ModBUS protocol execution
-													CopiaVector(Y->swap, a_eth->_MBUS_RCVD, a_eth->_n_MBUS_RCVD, 0, 0);
-													CopiaVector(mb_wf->_Holding_Registers, a_eth->_Holding_Registers, 64, 0, 0);
-													if (Y->DBG) ITM0_Write("\r\n RCVD MBUS REQ \r\n",strlen("\r\n\ RCVD MBUS REQ \r\n"));
-												}
-												else
-													{
-													if (Y->DBG) ITM0_Write("\r\n NO MBUS \r\n",strlen("\r\n NO MBUS \r\n"));
-													}
-										}
+
+									}
 
 								}
 							}

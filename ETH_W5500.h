@@ -165,6 +165,9 @@ enum
  RECV 			=	0x40
 };
 
+
+
+
 // ****** end Socket COMMANDS Sn_CR ****** //
 
 // ****** Begin Socket COMMANDS Status for programm ****** //
@@ -172,7 +175,7 @@ enum
 {
  READY 				=	0x00,
  TIME_OUT			=	0X01,
- CONNECTING 		=	0x02,
+ CONNECTING 		=	0x02
 };
 
 // ****** end Socket COMMANDS Status for programm ****** //
@@ -198,6 +201,20 @@ enum
  SOCK_PPOE			=	0x5F,
 };
 // ****** End Socket STATUS Sn_SR ****** //
+
+
+// ****** Begin Socket STATUS STATE MACHINE****** //
+enum
+{ 
+NO_OP			   = 	0x00,
+IDLE           = 	0x01,
+SENT           = 	0x02,
+SENDING		   =	0x03,
+RECEIPT		   =	0x04,
+RECEIVING	   =	0x05,
+};
+// ****** End Socket STATUS STATE MACHINE ****** //
+
 
 // Begin Socket SPI
 enum
@@ -251,7 +268,9 @@ uint8_t     CMD_Status,
 			S3_ENserver,
 			T8,
 			DBG,
-			CAM;
+			CAM,
+			STATUS,
+			COMMAND;
 
 uint16_t    gS_RX_BASE ,
 			gS_RX_MASK ,
@@ -276,7 +295,7 @@ uint16_t    gS_RX_BASE ,
 			S0_get_size,
 			send_size;
 
-uint32_t MB_TOUT_ticks;
+uint32_t    MB_TOUT_ticks;
 };
 
 struct W5500_SPY
