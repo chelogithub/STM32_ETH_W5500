@@ -156,7 +156,7 @@ uint16_t SPI_ETH_WR_TX_REG_16(struct W5500_SPI * x, uint16_t addr, uint8_t * dat
 				{
 				x->TX[1] = addr & 0x00FF;
 				x->TX[0] = (addr & 0xFF00)>>8;
-				x->TX[3]= x->data[i+offset];
+				x->TX[3]= data[i+offset];
 				SPI_ETH(x);
 				addr++;
 				}
@@ -368,7 +368,7 @@ uint16_t  eth_rd_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * 
 	return(mem_pointer);
 }
 
-uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * mem_pointer, uint16_t send_size)
+uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * mem_pointer)
 {
 	uint16_t S_bf_rcv_offset=0,
 			 left_size=0,
@@ -420,7 +420,7 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 		break;
 	}
 
-	while(get_free_size<send_size)
+	while(get_free_size<ETH->send_size)
 			{
 				get_free_size=SPI_ETH_REG(ETH, Sn_TX_FSR, socket ,SPI_READ, spi_Data,2);//get_free_size=SPI_ETH_REG(ETH, 0x04 + socket, 0x20 ,SPI_READ, spi_Data,2); //Leo registro S_TX_FSR	=   0x420,
 			}
@@ -428,20 +428,20 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 				get_offset= Sn_TX_WR_local & TX_MASK;
 				get_start_address=TX_BASE + get_offset;
 
-				if((get_offset + send_size)>(TX_MASK + 1))
+				if((get_offset + ETH->send_size)>(TX_MASK + 1))
 					{
 						upper_size=( TX_MASK + 1) - get_offset;
-						SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, upper_size,socket_TX);
+						SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->TX_data , S_bf_rcv_offset, upper_size,socket_TX);
 						source_addr+=upper_size;
-						left_size=send_size-upper_size;
+						left_size=ETH->send_size-upper_size;
 						S_bf_rcv_offset=upper_size;
-						SPI_ETH_WR_TX_REG_16(ETH , TX_BASE , ETH->data , S_bf_rcv_offset, left_size, socket_TX);
-						*mem_pointer=Sn_TX_WR_local + send_size;
+						SPI_ETH_WR_TX_REG_16(ETH , TX_BASE , ETH->TX_data , S_bf_rcv_offset, left_size, socket_TX);
+						*mem_pointer=Sn_TX_WR_local + ETH->send_size;
 					}
 				else
 					{
-					SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, send_size, socket_TX);
-					*mem_pointer=Sn_TX_WR_local + send_size;
+					SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->TX_data , S_bf_rcv_offset, ETH->send_size, socket_TX);
+					*mem_pointer=Sn_TX_WR_local + ETH->send_size;
 					}
 
 }
@@ -695,7 +695,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 											}
 
 										Y->send_size=a_eth->_n_MBUS_2SND;  //ModBUS data qty*/
-										eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer, Y->send_size);	// write socket data
+										eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer);	// write socket data
 										SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,SOCKET);			// write tx memory pointer//SPI_ETH_WR_REG_16(Y,0x424,tx_mem_pointer,0);			// write tx memory pointer
 										eth_wr_SOCKET_CMD(Y,SOCKET,SEND);							// write command to execute
 										eth_rd_SOCKET_CMD(Y,SOCKET);
@@ -707,7 +707,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 								{
 									//Si ya envié vuelvo a enviar
 									Y->STATUS==SENDING;
-									eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer, Y->send_size);	// write socket data   S0_TX_BUFF
+									eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer);	// write socket data   S0_TX_BUFF
 									SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,SOCKET);			// write tx memory pointer
 									eth_wr_SOCKET_CMD(Y,SOCKET,SEND);							// write command to execute
 									uint16_t read=0;

@@ -246,6 +246,7 @@ uint8_t     CMD_Status,
 			RX[4],					//Vector for RX SPI commands
 			data[2048],				//Data readed from SPI
 			swap[2048],				//VECTOR DE INTERCAMBIO A DEFINIR
+			TX_data[2048],
 			spi_Data[64],
 			GAR[4],
 			SUBR[4],
@@ -447,7 +448,7 @@ Example:    eth_rd_SOCKET_DATA(&ETH, 0 ,&mem_pointer, data_qty);
 
 /******************************************************************************/
 
-uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI *, uint8_t,uint16_t *, uint16_t);
+uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI *, uint8_t, uint16_t *);
 /******************************************************************************
 	eth_wr_SOCKET_DATA Write socket to send data
 
