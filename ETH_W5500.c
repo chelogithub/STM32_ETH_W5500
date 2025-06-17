@@ -310,7 +310,8 @@ uint16_t  eth_rd_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * 
 			 S_mem_pointer=0,
 			 RX_MASK=0,
 			 RX_BASE=0;
-	uint8_t spi_Data[2];
+	uint8_t spi_Data[2],
+			socket_RX=socket+2;;
 
 	switch (socket)
 	{
@@ -346,22 +347,22 @@ uint16_t  eth_rd_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * 
 		break;
 	}
 
-	S_RX_RD = SPI_ETH_REG(ETH, Sn_RX_RD0 ,S0_REG ,SPI_READ, spi_Data,2);//S_RX_RD = SPI_ETH_REG(ETH, S_RX_RD_ADDR_BASEHH + socket ,S_RX_RD_ADDR_BASEHL ,SPI_READ, spi_Data,2);
+	S_RX_RD = SPI_ETH_REG(ETH, Sn_RX_RD0 ,socket ,SPI_READ, spi_Data,2);//S_RX_RD = SPI_ETH_REG(ETH, S_RX_RD_ADDR_BASEHH + socket ,S_RX_RD_ADDR_BASEHL ,SPI_READ, spi_Data,2);
 	S_get_offset = S_RX_RD & RX_MASK;
 	S_get_start_address  = RX_BASE + S_get_offset;
 	if((S_get_offset  + sizedata )>(RX_MASK + 1))
 		{
 			upper_size = (RX_MASK + 1) - S_get_offset ;
-			SPI_ETH_RD_RCV_REG_16(ETH , S_get_start_address , ETH->data , S_bf_rcv_offset, upper_size, socket);
+			SPI_ETH_RD_RCV_REG_16(ETH , S_get_start_address , ETH->data , S_bf_rcv_offset, upper_size, socket_RX);
 			destination_addr+=upper_size;
 			left_size=sizedata-upper_size;
 			S_bf_rcv_offset=upper_size;
-			SPI_ETH_RD_RCV_REG_16(ETH , RX_BASE , ETH->data , S_bf_rcv_offset, left_size, socket);
+			SPI_ETH_RD_RCV_REG_16(ETH , RX_BASE , ETH->data , S_bf_rcv_offset, left_size, socket_RX);
 			*mem_pointer=S_RX_RD + sizedata;
 		}
 		else
 			{
-				SPI_ETH_RD_RCV_REG_16(ETH , S_get_start_address , ETH->data , S_bf_rcv_offset, sizedata, socket);
+				SPI_ETH_RD_RCV_REG_16(ETH , S_get_start_address , ETH->data , S_bf_rcv_offset, sizedata, socket_RX);
 				*mem_pointer=S_RX_RD + sizedata;
 			}
 	return(mem_pointer);
@@ -380,7 +381,10 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 			 S_mem_pointer=0,
 			 TX_MASK=0,
 			 TX_BASE=0;
-	uint8_t spi_Data[2];
+	uint8_t spi_Data[2],
+			socket_TX;
+
+	socket_TX=socket+1;
 
 	switch (socket)
 	{
@@ -418,25 +422,25 @@ uint16_t eth_wr_SOCKET_DATA(struct W5500_SPI * ETH, uint8_t socket, uint16_t * m
 
 	while(get_free_size<send_size)
 			{
-				get_free_size=SPI_ETH_REG(ETH, Sn_TX_FSR, S0_REG ,SPI_READ, spi_Data,2);//get_free_size=SPI_ETH_REG(ETH, 0x04 + socket, 0x20 ,SPI_READ, spi_Data,2); //Leo registro S_TX_FSR	=   0x420,
+				get_free_size=SPI_ETH_REG(ETH, Sn_TX_FSR, socket ,SPI_READ, spi_Data,2);//get_free_size=SPI_ETH_REG(ETH, 0x04 + socket, 0x20 ,SPI_READ, spi_Data,2); //Leo registro S_TX_FSR	=   0x420,
 			}
-				Sn_TX_WR_local = SPI_ETH_REG(ETH, Sn_TX_WR, S0_REG ,SPI_READ, spi_Data,2); // S_TX_RD =   0x424,Sn_TX_WR = SPI_ETH_REG(ETH, 0x04 + socket,0x24 ,SPI_READ, spi_Data,2); // S_TX_RD =   0x424,
+				Sn_TX_WR_local = SPI_ETH_REG(ETH, Sn_TX_WR, socket ,SPI_READ, spi_Data,2); // S_TX_RD =   0x424,Sn_TX_WR = SPI_ETH_REG(ETH, 0x04 + socket,0x24 ,SPI_READ, spi_Data,2); // S_TX_RD =   0x424,
 				get_offset= Sn_TX_WR_local & TX_MASK;
 				get_start_address=TX_BASE + get_offset;
 
 				if((get_offset + send_size)>(TX_MASK + 1))
 					{
 						upper_size=( TX_MASK + 1) - get_offset;
-						SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, upper_size,socket);
+						SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, upper_size,socket_TX);
 						source_addr+=upper_size;
 						left_size=send_size-upper_size;
 						S_bf_rcv_offset=upper_size;
-						SPI_ETH_WR_TX_REG_16(ETH , TX_BASE , ETH->data , S_bf_rcv_offset, left_size, socket);
+						SPI_ETH_WR_TX_REG_16(ETH , TX_BASE , ETH->data , S_bf_rcv_offset, left_size, socket_TX);
 						*mem_pointer=Sn_TX_WR_local + send_size;
 					}
 				else
 					{
-					SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, send_size, socket);
+					SPI_ETH_WR_TX_REG_16(ETH , get_start_address , ETH->data , S_bf_rcv_offset, send_size, socket_TX);
 					*mem_pointer=Sn_TX_WR_local + send_size;
 					}
 
@@ -579,9 +583,9 @@ uint8_t SPI_ETH_SNIFF(struct W5500_SPY * Y,struct W5500_SPI * X)
 };
 
 
-uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
+uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTSER)
 {
-	Y->S_status=eth_rd_SOCKET_STAT(Y,S0_REG);  //este era el bardo
+	Y->S_status=eth_rd_SOCKET_STAT(Y,SOCKET);  //este era el bardo
 
 		  switch(Y->S_status)	//Check Socket status
 				 {
@@ -593,7 +597,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 
 							 if (Y->CMD_Status==TIME_OUT)
 							 {
-								 eth_wr_SOCKET_CMD(Y,S0_REG, OPEN);																					//same for server and client
+								 eth_wr_SOCKET_CMD(Y,SOCKET, OPEN);																					//same for server and client
 								 if (Y->DBG) ITM0_Write("\r\nETH-W5500-OPEN SOCKET\r\n",strlen("\r\nETH-W5100-OPEN SOCKET\r\n"));
 							 }
 
@@ -612,7 +616,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 							 if(Y->S_ENserver == 1)
 							 {
 								 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_INIT \r\n",strlen("\r\nS0_SOCK_INIT \r\n"));
-									eth_wr_SOCKET_CMD(Y, S0_REG, LISTEN );
+									eth_wr_SOCKET_CMD(Y, SOCKET, LISTEN );
 									Y->ETH_WDG=0;
 									Y->CAM=0;
 							 }
@@ -620,7 +624,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 							 {
 								 if (Y->CMD_Status!=CONNECTING)
 								 {
-									eth_wr_SOCKET_CMD(Y,S0_REG, CONNECT);																				//only for server
+									eth_wr_SOCKET_CMD(Y,SOCKET, CONNECT);																				//only for server
 									if (Y->DBG) {ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5500-CONNECT\r\n"));
 									TX_485_Enable(0);
 									HAL_UART_Transmit_IT(PORTSER, "\r\nETH-W5500-CONNECT\r\n", strlen("\r\nETH-W5500-CONNECT\r\n"));}
@@ -668,13 +672,13 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 							if (Y->S_ENserver == 1)  // Si el puerto Ethernet actúa como server (Recibe datos conexión mas pedido mbus
 							{
 								uint8_t local_exit=1;
-								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,S0_REG, SPI_READ, Y->spi_Data,2);//Y->S0_get_size = SPI_ETH_REG(Y, S_RX_SZ_ADDR_BASEHH,S_RX_SZ_ADDR_BASEHL ,SPI_READ, Y->spi_Data,2);
+								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,SOCKET, SPI_READ, Y->spi_Data,2);//Y->S0_get_size = SPI_ETH_REG(Y, S_RX_SZ_ADDR_BASEHH,S_RX_SZ_ADDR_BASEHL ,SPI_READ, Y->spi_Data,2);
 									if(Y->S0_get_size != 0x00)
 									{
-										eth_rd_SOCKET_DATA(Y,S0_RX_BUFF,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data
-										SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,S0_REG );		// write rx memory pointer
-										eth_wr_SOCKET_CMD(Y,S0_REG,RECV);
-										eth_rd_SOCKET_CMD(Y,S0_REG);// write command to execute
+										eth_rd_SOCKET_DATA(Y,SOCKET,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data S0_RX_BUFF
+										SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,SOCKET );		// write rx memory pointer
+										eth_wr_SOCKET_CMD(Y,SOCKET,RECV);
+										eth_rd_SOCKET_CMD(Y,SOCKET);// write command to execute
 										/*CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
 										a_eth->_n_MBUS_RCVD=Y->S0_get_size;
 
@@ -686,15 +690,15 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 												CopiaVector(Y->data, a_eth->_MBUS_2SND, a_eth->_n_MBUS_2SND, 0, 0);
 											}
 										else
-											{
+										{
 												if (Y->DBG) ITM0_Write("\r\n NO MBUS \r\n",strlen("\r\n\r\n NO MBUS \r\n\r\n"));
 											}
 
 										Y->send_size=a_eth->_n_MBUS_2SND;  //ModBUS data qty*/
-										eth_wr_SOCKET_DATA(Y,S0_RX_BUFF, &Y->tx_mem_pointer, Y->send_size);	// write socket data
-										SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,S0_REG);			// write tx memory pointer//SPI_ETH_WR_REG_16(Y,0x424,tx_mem_pointer,0);			// write tx memory pointer
-										eth_wr_SOCKET_CMD(Y,S0_REG,SEND);							// write command to execute
-										eth_rd_SOCKET_CMD(Y,S0_REG);
+										eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer, Y->send_size);	// write socket data
+										SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,SOCKET);			// write tx memory pointer//SPI_ETH_WR_REG_16(Y,0x424,tx_mem_pointer,0);			// write tx memory pointer
+										eth_wr_SOCKET_CMD(Y,SOCKET,SEND);							// write command to execute
+										eth_rd_SOCKET_CMD(Y,SOCKET);
 									}
 							}
 							else	// Puerto ethernet labura como esclavo, se conecta al server para pedir datos
@@ -703,11 +707,11 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 								{
 									//Si ya envié vuelvo a enviar
 									Y->STATUS==SENDING;
-									eth_wr_SOCKET_DATA(Y,S0_TX_BUFF, &Y->tx_mem_pointer, Y->send_size);	// write socket data
-									SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,S0_REG);			// write tx memory pointer
-									eth_wr_SOCKET_CMD(Y,S0_REG,SEND);							// write command to execute
+									eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer, Y->send_size);	// write socket data   S0_TX_BUFF
+									SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,SOCKET);			// write tx memory pointer
+									eth_wr_SOCKET_CMD(Y,SOCKET,SEND);							// write command to execute
 									uint16_t read=0;
-									read=SPI_ETH_REG(Y, Sn_IR,S0_REG,SPI_READ, Y->GAR,1);
+									read=SPI_ETH_REG(Y, Sn_IR,SOCKET,SPI_READ, Y->GAR,1);
 									//a_eth->_w_answer=1;	// Waiting answer flag_w_answer=1;	// Waiting answer flag
 									Y->MB_TOUT_ticks=0;	// restart counting
 									Y->STATUS=SENT;
@@ -716,13 +720,13 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 								}
 								else //if (a_eth->_w_answer==1) //recibir si estoy esperando datos
 								{
-								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,S0_REG ,SPI_READ, Y->spi_Data,2);
+								Y->S0_get_size = SPI_ETH_REG(Y, Sn_RX_RSR ,SOCKET ,SPI_READ, Y->spi_Data,2);
 									if(Y->S0_get_size != 0x00)
 									{
 											Y->STATUS==RECEIVING;
-											eth_rd_SOCKET_DATA(Y,S0_RX_BUFF,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data
-											SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,S0_REG);		// write rx memory pointer
-											eth_wr_SOCKET_CMD(Y,S0_REG,RECV);
+											eth_rd_SOCKET_DATA(Y,SOCKET,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data  S0_RX_BUFF
+											SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,SOCKET);		// write rx memory pointer
+											eth_wr_SOCKET_CMD(Y,SOCKET,RECV);
 											Y->STATUS=RECEIPT;// write command to execute
 											if (Y->DBG) ITM0_Write("\r\n RCVD DATA \r\n",strlen("\r\n RCVD DATA \r\n"));
 
@@ -750,8 +754,8 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 					 case  SOCK_TIME_WAIT :
 						 {
 							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_TIME_WAIT \r\n",strlen("\r\nS0_SOCK_TIME_WAIT \r\n"));
-							eth_wr_SOCKET_CMD(Y,S0_REG, DISCON );
-							SPI_ETH_REG(Y,Sn_CR ,S0_REG,SPI_READ, Y->spi_Data,100);
+							eth_wr_SOCKET_CMD(Y,SOCKET, DISCON );
+							SPI_ETH_REG(Y,Sn_CR ,SOCKET,SPI_READ, Y->spi_Data,100);
 							Y->ETH_WDG=0;
 							Y->CAM=0;
 						 }
@@ -759,8 +763,8 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, UART_HandleTypeDef *PORTSER)
 					 case SOCK_CLOSE_WAIT :
 						 {
 							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_CLOSE_WAIT \r\n",strlen("\r\nS0_SOCK_CLOSE_WAIT \r\n"));
-							eth_wr_SOCKET_CMD(Y,S0_REG,DISCON );
-							SPI_ETH_REG(Y,Sn_CR,S0_REG,SPI_READ, Y->spi_Data,100);
+							eth_wr_SOCKET_CMD(Y,SOCKET,DISCON );
+							SPI_ETH_REG(Y,Sn_CR,SOCKET,SPI_READ, Y->spi_Data,100);
 							Y->ETH_WDG=0;
 							Y->CAM=0;
 						 }

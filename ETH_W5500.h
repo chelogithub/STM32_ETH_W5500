@@ -91,23 +91,23 @@ enum
  Sn_CR			=   0x0001,	//Command
  Sn_IR			=   0x0002,	//Interrupt
  Sn_SR			=   0x0003,	//Status
- Sn_PORT			=   0x0004,	//Source Port
- Sn_DHAR			=   0x0006,	//Destiantion Address
- Sn_DIPR			=   0x000C,	//Destination IP Address
+ Sn_PORT		=   0x0004,	//Source Port
+ Sn_DHAR		=   0x0006,	//Destiantion Address
+ Sn_DIPR		=   0x000C,	//Destination IP Address
  Sn_DPORT		=   0x0010,	//Destination Port
- Sn_MSSR			=   0x0012,	//Maximum segment size
- Sn_TOS 			=   0x0015,	//Socket  TOS
- Sn_TTL 			=   0x0016,	//Socket  TTL
+ Sn_MSSR		=   0x0012,	//Maximum segment size
+ Sn_TOS 		=   0x0015,	//Socket  TOS
+ Sn_TTL 		=   0x0016,	//Socket  TTL
  Sn_RXBUF_SIZE	=	0x001E,	//Socket Resceive Buffer
  Sn_TXBUF_SIZE	=	0x001F,	//Socket Transmitt Buffer
  Sn_TX_FSR		=   0x0020,	//Socket  TX Free size
  Sn_TX_RD		=   0x0022,	//Socket  TX Read pointer
  Sn_TX_WR		=   0x0024,	//Socket  TX Write pointer
  Sn_RX_RSR		=   0x0026,	//Socket  RX Received size
- Sn_RX_RD0      	=   0x0028, //Socket  RX Read pointer
+ Sn_RX_RD0     	=   0x0028, //Socket  RX Read pointer
  Sn_RX_WR		=   0x002A,	//Socket  RX Write Pointer
  Sn_IMR			=   0x002C,	//Socket  Interrupt Mask
- Sn_FRAG			=   0x002D,	//Socket  Fragment Offset in IP Header
+ Sn_FRAG		=   0x002D,	//Socket  Fragment Offset in IP Header
  Sn_KPALVTR     =   0x002F, //Socket  Keep Alive Timer
 
 
@@ -206,7 +206,7 @@ enum
 // ****** Begin Socket STATUS STATE MACHINE****** //
 enum
 { 
-NO_OP			   = 	0x00,
+NO_OP		   = 	0x00,
 IDLE           = 	0x01,
 SENT           = 	0x02,
 SENDING		   =	0x03,
@@ -232,7 +232,8 @@ struct W5500_SPI
 	uint16_t RST_PIN;				//Pin number
 	uint8_t operacion;				//Define operation read /write
 
-uint16_t	ETH_WDG;
+uint16_t	ETH_WDG,
+			ETH_CMD_WDG;
 uint8_t     CMD_Status,
 			PHY_status,
 			S_status,
