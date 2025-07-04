@@ -591,7 +591,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 				 {
 					 case SOCK_CLOSED :
 						 {
-							 if (Y->DBG) {ITM0_Write("\r\nS0_SOCK_CLOSED \r\n",strlen("\r\nS0_SOCK_CLOSED \r\n"));
+							 if (Y->DBG==2) {ITM0_Write("\r\nS0_SOCK_CLOSED \r\n",strlen("\r\nS0_SOCK_CLOSED \r\n"));
 							 TX_485_Enable(0);
 							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_CLOSED\r\n", strlen("\r\nS0_SOCK_CLOSED\r\n"));}
 
@@ -615,7 +615,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 
 							 if(Y->S_ENserver == 1)
 							 {
-								 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_INIT \r\n",strlen("\r\nS0_SOCK_INIT \r\n"));
+								 if (Y->DBG==2) ITM0_Write("\r\nS0_SOCK_INIT \r\n",strlen("\r\nS0_SOCK_INIT \r\n"));
 									eth_wr_SOCKET_CMD(Y, SOCKET, LISTEN );
 									Y->ETH_WDG=0;
 									Y->CAM=0;
@@ -625,7 +625,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 								 if (Y->CMD_Status!=CONNECTING)
 								 {
 									eth_wr_SOCKET_CMD(Y,SOCKET, CONNECT);																				//only for server
-									if (Y->DBG) {ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5500-CONNECT\r\n"));
+									if (Y->DBG==2) {ITM0_Write("\r\nETH-W5500-CONNECT\r\n",strlen("\r\nETH-W5500-CONNECT\r\n"));
 									TX_485_Enable(0);
 									HAL_UART_Transmit_IT(PORTSER, "\r\nETH-W5500-CONNECT\r\n", strlen("\r\nETH-W5500-CONNECT\r\n"));}
 									Y->ETH_WDG=0;
@@ -638,7 +638,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 					 break;
 					 case SOCK_LISTEN :
 						 {
-							 if (Y->DBG){ITM0_Write("\r\nS0_SOCK_LISTEN \r\n",strlen("\r\nS0_SOCK_LISTEN \r\n"));
+							 if (Y->DBG==2){ITM0_Write("\r\nS0_SOCK_LISTEN \r\n",strlen("\r\nS0_SOCK_LISTEN \r\n"));
 							 TX_485_Enable(0);
 							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_LISTEN \r\n", strlen("\r\nS0_SOCK_LISTEN \r\n"));}
 							 Y->ETH_WDG=0;
@@ -647,7 +647,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 					 break;
 					 case SOCK_SYNSENT :
 						 {
-							 if (Y->DBG){ITM0_Write("\r\nS0_SOCK_SYNSENT \r\n",strlen("\r\nS0_SOCK_SYNSENT \r\n"));
+							 if (Y->DBG==2){ITM0_Write("\r\nS0_SOCK_SYNSENT \r\n",strlen("\r\nS0_SOCK_SYNSENT \r\n"));
 							 TX_485_Enable(0);
 							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_SYNSENT\r\n", strlen("\r\nS0_SOCK_SYNSENT\r\n"));}
 							 Y->ETH_WDG=0;
@@ -656,7 +656,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 					 break;
 					 case SOCK_SYNRECV :
 						 {
-							 if (Y->DBG)ITM0_Write("\r\nS0_SOCK_SYNRECV \r\n",strlen("\r\nS0_SOCK_SYNRECV \r\n"));
+							 if (Y->DBG==2)ITM0_Write("\r\nS0_SOCK_SYNRECV \r\n",strlen("\r\nS0_SOCK_SYNRECV \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
@@ -664,7 +664,7 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 					 case SOCK_ESTABLISHED :
 						 {
 							 Y->ETH_WDG=0;
-							 if (Y->DBG){ITM0_Write("\r\nS0_SOCK_ESTABLISHED \r\n",strlen("\r\nS0_SOCK_ESTABLISHED \r\n"));
+							 if (Y->DBG==2){ITM0_Write("\r\nS0_SOCK_ESTABLISHED \r\n",strlen("\r\nS0_SOCK_ESTABLISHED \r\n"));
 							 TX_485_Enable(0);
 							 HAL_UART_Transmit_IT(PORTSER, "\r\nS0_SOCK_ESTABLISHED\r\n", strlen("\r\nS0_SOCK_ESTABLISHED\r\n"));}
 
@@ -677,24 +677,8 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 									{
 										eth_rd_SOCKET_DATA(Y,SOCKET,&Y->rx_mem_pointer,Y->S0_get_size); // read socket data S0_RX_BUFF
 										SPI_ETH_WR_REG_16(Y,Sn_RX_RD0,Y->rx_mem_pointer,SOCKET );		// write rx memory pointer
-										eth_wr_SOCKET_CMD(Y,SOCKET,RECV);
-										eth_rd_SOCKET_CMD(Y,SOCKET);// write command to execute
-										/*CopiaVector(a_eth->_MBUS_RCVD, Y->data, Y->S0_get_size, 0, 0 );
-										a_eth->_n_MBUS_RCVD=Y->S0_get_size;
-
-										if(Y->S0_get_size > 0)	{ Y->S_data_available=1;}					//Flag data received
-
-										if(ModBUS_Check(a_eth->_MBUS_RCVD, a_eth->_n_MBUS_RCVD))		//Ckecks ModBUS type data
-											{
-												ModBUS(&a_eth);										//ModBUS protocol execution
-												CopiaVector(Y->data, a_eth->_MBUS_2SND, a_eth->_n_MBUS_2SND, 0, 0);
-											}
-										else
-										{
-												if (Y->DBG) ITM0_Write("\r\n NO MBUS \r\n",strlen("\r\n\r\n NO MBUS \r\n\r\n"));
-											}
-
-										Y->send_size=a_eth->_n_MBUS_2SND;  //ModBUS data qty*/
+										eth_wr_SOCKET_CMD(Y,SOCKET,RECV); // write command to execute
+										eth_rd_SOCKET_CMD(Y,SOCKET);
 										eth_wr_SOCKET_DATA(Y,SOCKET, &Y->tx_mem_pointer);	// write socket data
 										SPI_ETH_WR_REG_16(Y,Sn_TX_WR,Y->tx_mem_pointer,SOCKET);			// write tx memory pointer//SPI_ETH_WR_REG_16(Y,0x424,tx_mem_pointer,0);			// write tx memory pointer
 										eth_wr_SOCKET_CMD(Y,SOCKET,SEND);							// write command to execute
@@ -739,21 +723,21 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 					 break;
 					 case SOCK_FIN_WAIT :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_FIN_WAIT \r\n",strlen("\r\nS0_SOCK_FIN_WAIT \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\nS0_SOCK_FIN_WAIT \r\n",strlen("\r\nS0_SOCK_FIN_WAIT \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
 					 break;
 					 case SOCK_CLOSING :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_CLOSING \r\n",strlen("\r\nS0_SOCK_CLOSING \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\nS0_SOCK_CLOSING \r\n",strlen("\r\nS0_SOCK_CLOSING \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
 					 break;
 					 case  SOCK_TIME_WAIT :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\nS0_SOCK_TIME_WAIT \r\n",strlen("\r\nS0_SOCK_TIME_WAIT \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\nS0_SOCK_TIME_WAIT \r\n",strlen("\r\nS0_SOCK_TIME_WAIT \r\n"));
 							eth_wr_SOCKET_CMD(Y,SOCKET, DISCON );
 							SPI_ETH_REG(Y,Sn_CR ,SOCKET,SPI_READ, Y->spi_Data,100);
 							Y->ETH_WDG=0;
@@ -771,35 +755,35 @@ uint8_t ETH_CORE(struct W5500_SPI * Y, uint8_t SOCKET, UART_HandleTypeDef *PORTS
 					 break;
 					 case SOCK_LAST_ACK :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_LAST_ACK \r\n",strlen("\r\n S0_SOCK_LAST_ACK \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\n S0_SOCK_LAST_ACK \r\n",strlen("\r\n S0_SOCK_LAST_ACK \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
 					 break;
 					 case SOCK_UDP :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_UDP \r\n",strlen("\r\n S0_SOCK_UDP \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\n S0_SOCK_UDP \r\n",strlen("\r\n S0_SOCK_UDP \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
 					 break;
 					 case  SOCK_IPRAW :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_IPRAW \r\n",strlen("\r\n S0_SOCK_IPRAW \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\n S0_SOCK_IPRAW \r\n",strlen("\r\n S0_SOCK_IPRAW \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
 					 break;
 					 case  SOCK_MACRAW :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_MACRAW \r\n",strlen("\r\n S0_SOCK_MACRAW \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\n S0_SOCK_MACRAW \r\n",strlen("\r\n S0_SOCK_MACRAW \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
 					 break;
 					 case SOCK_PPOE :
 						 {
-							 if (Y->DBG) ITM0_Write("\r\n S0_SOCK_PPOE \r\n",strlen("\r\n S0_SOCK_PPOE \r\n"));
+							 if (Y->DBG==2) ITM0_Write("\r\n S0_SOCK_PPOE \r\n",strlen("\r\n S0_SOCK_PPOE \r\n"));
 							 Y->ETH_WDG=0;
 							 Y->CAM=0;
 						 }
